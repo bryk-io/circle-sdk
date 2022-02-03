@@ -1,6 +1,7 @@
 package circlesdk
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -9,9 +10,8 @@ import (
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 const (
@@ -22,11 +22,41 @@ const (
 // Version identifier for the SDK.
 const Version = "0.1.0"
 
-// Client provices access to all core Circle APIs. This core set of APIs allow you to:
+// Network request options.
+type requestOptions struct {
+	// HTTP method to use.
+	method string
+
+	// API operation endpoint.
+	endpoint string
+
+	// Operation parameters, if any.
+	input map[string]interface{}
+
+	// Result holder, if any.
+	output interface{}
+
+	// Automatically unwrap the "data" key in the response to the output
+	// holder provided.
+	unwrapData bool
+
+	// Produce idempotent results on POST requests; must be a valid UUID.
+	// if none is provided a new one will be created by default.
+	idempotencyKey string
+
+	// Custom request context.
+	ctx context.Context
+
+	// Custom query parameters.
+	queryParams url.Values
+}
+
+// Client provides access to all core Circle APIs. This core set of APIs allow you to:
 //   - Transfer digital currency (USDC) in and out of your Circle Account.
 //   - Register your own business bank accounts - if you have them.
 //   - Make transfers from / to your business bank account while seamlessly converting
-//     those funds across digital currency and traditional FAIT.
+//     those funds across digital currency and traditional FIAT.
+// https://developers.circle.com/docs
 type Client struct {
 	// The Circle Payments API allows you to take payments from your end users
 	// via traditional methods such as debit & credit cards, bank accounts, etc.,
@@ -86,25 +116,6 @@ type Client struct {
 	backend string
 }
 
-// Network request options.
-type requestOptions struct {
-	// HTTP method to use.
-	method string
-
-	// API operation endpoint.
-	endpoint string
-
-	// Operation parameters, if any
-	input map[string]interface{}
-
-	// Result holder, if any
-	output interface{}
-
-	// Produce idempotent results on POST requests; must be a valid UUID.
-	// if none is provided a new one will be created by default.
-	idempotencyKey string
-}
-
 // NewClient will construct a usable service handler using the provided API key and
 // configuration options, if 'nil' options are provided default sane values will
 // be used.
@@ -151,11 +162,11 @@ func NewClient(options ...Option) (*Client, error) {
 // client instance is properly setup.
 func (cl *Client) Ping() bool {
 	type pingResponse struct {
-		Message string `json:"message"`
+		Message string `json:"message,omitempty"`
 	}
 
 	req := &requestOptions{
-		method:   "GET",
+		method:   http.MethodGet,
 		endpoint: "ping",
 		input:    nil,
 		output:   &pingResponse{},
@@ -163,24 +174,19 @@ func (cl *Client) Ping() bool {
 	if err := cl.dispatch(req); err != nil {
 		return false
 	}
-	return req.output.(*pingResponse).Message == "pong"
+	res, ok := req.output.(*pingResponse)
+	if !ok {
+		return false
+	}
+	return res.Message == "pong"
 }
 
 // Dispatch a network request to the service.
 func (cl *Client) dispatch(r *requestOptions) error {
-	// New idempotency key
-	if r.idempotencyKey == "" {
-		r.idempotencyKey = uuid.NewString()
-	}
-
-	req, _ := http.NewRequestWithContext(context.TODO(), r.method, cl.backend+r.endpoint, nil)
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Authorization", "Bearer "+cl.key)
-	req.Header.Add("Content-Type", "application/json")
-
-	// Add user-agent header
-	if cl.userAgent != "" {
-		req.Header.Add("User-Agent", cl.userAgent)
+	// Build request
+	req, err := cl.newRequest(r)
+	if err != nil {
+		return err
 	}
 
 	// Dump request
@@ -202,6 +208,11 @@ func (cl *Client) dispatch(r *requestOptions) error {
 		}()
 	}
 
+	// Network level errors
+	if err != nil {
+		return err
+	}
+
 	// Dump response
 	if cl.debug {
 		dump, err := httputil.DumpResponse(res, true)
@@ -211,24 +222,38 @@ func (cl *Client) dispatch(r *requestOptions) error {
 		}
 	}
 
-	// Network level errors
-	if err != nil {
-		return err
-	}
-
 	// Get response contents
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
 
-	// Application level errors
-	if res.StatusCode != 200 {
+	// API level errors
+	if res.StatusCode == 400 {
+		e := new(Error)
+		if err := json.Unmarshal(body, e); err == nil {
+			return e
+		}
 		return fmt.Errorf("unsuccessful request: %s", res.Status)
 	}
 
 	// Decode response
 	if r.output != nil {
+		// Unwrap "data" key in the response
+		if r.unwrapData {
+			temp := map[string]interface{}{}
+			if err := json.Unmarshal(body, &temp); err != nil {
+				return fmt.Errorf("non JSON content returned: %s", body)
+			}
+			if data, ok := temp["data"]; ok {
+				body, err = json.Marshal(data)
+				if err != nil {
+					return fmt.Errorf("non JSON content returned: %s", data)
+				}
+			}
+		}
+
+		// Load response data in the provided output interface
 		if err = json.Unmarshal(body, r.output); err != nil {
 			return fmt.Errorf("non JSON content returned: %s", body)
 		}
@@ -236,4 +261,43 @@ func (cl *Client) dispatch(r *requestOptions) error {
 
 	// All good!
 	return nil
+}
+
+// Prepare a new API request.
+func (cl *Client) newRequest(r *requestOptions) (*http.Request, error) {
+	// Default context
+	if r.ctx == nil {
+		r.ctx = context.TODO()
+	}
+
+	// Prepare input data
+	var input io.Reader
+	if r.input != nil {
+		data, err := json.Marshal(r.input)
+		if err != nil {
+			return nil, fmt.Errorf("invalid input data: %w", err)
+		}
+		input = bytes.NewReader(data)
+	}
+
+	// Build basic request
+	req, err := http.NewRequestWithContext(r.ctx, r.method, cl.backend+r.endpoint, input)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add additional headers
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+cl.key)
+	req.Header.Add("Content-Type", "application/json")
+	if cl.userAgent != "" {
+		req.Header.Add("User-Agent", cl.userAgent)
+	}
+
+	// Add additional query parameters
+	if r.queryParams != nil {
+		req.URL.RawQuery = r.queryParams.Encode()
+	}
+
+	return req, nil
 }

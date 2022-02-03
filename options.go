@@ -66,6 +66,7 @@ func WithAPIKeyFromEnv(name string) Option {
 }
 
 // WithDebug makes the client produce trace output of requests and responses.
+// Recommended only for testing and development.
 func WithDebug() Option {
 	return func(c *Client) error {
 		c.debug = true

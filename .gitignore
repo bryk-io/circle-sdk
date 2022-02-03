@@ -1,6 +1,7 @@
 # Generals
 .DS_Store
 .idea
+*.iml
 
 # Deps
 vendor/**
