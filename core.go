@@ -5,50 +5,6 @@ import (
 	"net/http"
 )
 
-// Balance of funds that are available for use.
-type Balance struct {
-	// List of currency balances (one for each currency) that are currently available
-	// to spend.
-	Available []BalanceEntry `json:"available,omitempty"`
-
-	// List of currency balances (one for each currency) that have been captured but are
-	// currently in the process of settling and will become available to spend at some
-	// point in the future.
-	Unsettled []BalanceEntry `json:"unsettled,omitempty"`
-}
-
-// BalanceEntry provides information for a specific amount/currency pair
-// in the complete balance information.
-type BalanceEntry struct {
-	// Magnitude of the amount, in units of the currency.
-	Amount string `json:"amount,omitempty"`
-
-	// Currency code for the amount.
-	Currency string `json:"currency,omitempty"`
-}
-
-// DepositAddress represents a blockchain account/destination where a
-// user is available to receive funds.
-type DepositAddress struct {
-	// An alphanumeric string representing a blockchain address. Will be in
-	// different formats for different chains. It is important to preserve the
-	// exact formatting and capitalization of the address.
-	Address string `json:"address,omitempty"`
-
-	// The secondary identifier for a blockchain address. An example of this is
-	// the memo field on the Stellar network, which can be text, id, or hash format.
-	AddressTag string `json:"addressTag,omitempty"`
-
-	// Currency associated with a balance or address.
-	Currency string `json:"currency,omitempty"`
-
-	// Blockchain that a given currency is available on.
-	Chain string `json:"chain,omitempty"`
-
-	// An identifier or sentence that describes the recipient.
-	Description string `json:"description,omitempty"`
-}
-
 // GetMasterWalletID return your master wallet identifier.
 func (cl *Client) GetMasterWalletID() (string, error) {
 	type configResponse struct {
@@ -127,10 +83,10 @@ func (cl *Client) CreateDepositAddress(
 	return address, nil
 }
 
-// GetDepositAddress returns a list of all available deposit address in the
+// GetDepositAddressList returns a list of all available deposit address in the
 // account.
 // https://developers.circle.com/reference#addresses-deposit-get
-func (cl *Client) GetDepositAddress(opts ...CallOption) ([]*DepositAddress, error) {
+func (cl *Client) GetDepositAddressList(opts ...CallOption) ([]*DepositAddress, error) {
 	var list []*DepositAddress
 	req := &requestOptions{
 		method:     http.MethodGet,
@@ -185,11 +141,11 @@ func (cl *Client) AddRecipientAddress(
 	return res["id"], nil
 }
 
-// GetRecipientAddress returns a list of recipient addresses that have each been verified
+// GetRecipientAddressList returns a list of recipient addresses that have each been verified
 // and are eligible for transfers. Any recipient addresses pending verification are not
 // included in the response.
 // https://developers.circle.com/reference#addresses-recipient-get
-func (cl *Client) GetRecipientAddress(opts ...CallOption) ([]*DepositAddress, error) {
+func (cl *Client) GetRecipientAddressList(opts ...CallOption) ([]*DepositAddress, error) {
 	var list []*DepositAddress
 	req := &requestOptions{
 		method:     http.MethodGet,

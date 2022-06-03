@@ -3,7 +3,6 @@ package circlesdk
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"time"
 
 	"github.com/google/uuid"
@@ -42,10 +41,7 @@ func WithIdempotencyKey(ik string) CallOption {
 // the collection will determine the page size itself.
 func WithPageSize(size uint) CallOption {
 	return func(req *requestOptions) error {
-		if req.queryParams == nil {
-			req.queryParams = url.Values{}
-		}
-		req.queryParams.Add("pageSize", fmt.Sprintf("%d", size))
+		req.addQueryParam("pageSize", fmt.Sprintf("%d", size))
 		return nil
 	}
 }
@@ -54,11 +50,8 @@ func WithPageSize(size uint) CallOption {
 // specified date range (inclusive).
 func WithDateRange(from, to time.Time) CallOption {
 	return func(req *requestOptions) error {
-		if req.queryParams == nil {
-			req.queryParams = url.Values{}
-		}
-		req.queryParams.Add("to", to.Format(time.RFC3339))
-		req.queryParams.Add("from", from.Format(time.RFC3339))
+		req.addQueryParam("to", to.Format(time.RFC3339))
+		req.addQueryParam("from", from.Format(time.RFC3339))
 		return nil
 	}
 }

@@ -51,6 +51,14 @@ type requestOptions struct {
 	queryParams url.Values
 }
 
+// Register a new query parameter.
+func (req *requestOptions) addQueryParam(key, value string) {
+	if req.queryParams == nil {
+		req.queryParams = url.Values{}
+	}
+	req.queryParams.Add(key, value)
+}
+
 // Client provides access to all core Circle APIs. This core set of APIs allow you to:
 //   - Transfer digital currency (USDC) in and out of your Circle Account.
 //   - Register your own business bank accounts - if you have them.
