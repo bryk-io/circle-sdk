@@ -55,3 +55,23 @@ func WithDateRange(from, to time.Time) CallOption {
 		return nil
 	}
 }
+
+// WithPageBefore marks the exclusive end of a page.
+// When provided, the collection resource will return the next n items before
+// the id, with n being specified by pageSize.
+func WithPageBefore(id string) CallOption {
+	return func(req *requestOptions) error {
+		req.addQueryParam("pageBefore", id)
+		return nil
+	}
+}
+
+// WithPageAfter marks the exclusive begin of a page.
+// When provided, the collection resource will return the next n items after
+// the id, with n being specified by pageSize.
+func WithPageAfter(id string) CallOption {
+	return func(req *requestOptions) error {
+		req.addQueryParam("pageAfter", id)
+		return nil
+	}
+}

@@ -111,18 +111,19 @@ func (mod *accountsAPI) CreateWallet(description string, opts ...CallOption) (*W
 		endpoint:   "v1/wallets",
 		unwrapData: true,
 		output:     res,
-		input: map[string]interface{}{
-			"description": description,
-		},
 	}
 	for _, opt := range opts {
 		if err := opt(req); err != nil {
 			return nil, err
 		}
 	}
-	if req.idempotencyKey != "" {
-		req.input["idempotencyKey"] = req.idempotencyKey
+	input := map[string]interface{}{
+		"description": description,
 	}
+	if req.idempotencyKey != "" {
+		input["idempotencyKey"] = req.idempotencyKey
+	}
+	req.input = input
 	if err := mod.cl.dispatch(req); err != nil {
 		return nil, err
 	}
@@ -147,19 +148,20 @@ func (mod *accountsAPI) CreateWalletDepositAddress(
 		endpoint:   fmt.Sprintf("v1/wallets/%s/addresses", walletID),
 		unwrapData: true,
 		output:     address,
-		input: map[string]interface{}{
-			"currency": string(currency),
-			"chain":    string(chain),
-		},
 	}
 	for _, opt := range opts {
 		if err := opt(req); err != nil {
 			return nil, err
 		}
 	}
-	if req.idempotencyKey != "" {
-		req.input["idempotencyKey"] = req.idempotencyKey
+	input := map[string]interface{}{
+		"currency": string(currency),
+		"chain":    string(chain),
 	}
+	if req.idempotencyKey != "" {
+		input["idempotencyKey"] = req.idempotencyKey
+	}
+	req.input = input
 	if err := mod.cl.dispatch(req); err != nil {
 		return nil, err
 	}

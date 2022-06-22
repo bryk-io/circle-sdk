@@ -101,3 +101,526 @@ type Transfer struct {
 	// The creation date of the transfer.
 	CreateDate string `json:"createDate,omitempty"`
 }
+
+// BillingDetails is the object containing billing details for the entity.
+type BillingDetails struct {
+	// Full name of the card or bank account holder.
+	Name string `json:"name,omitempty"`
+
+	// City portion of the address.
+	City string `json:"city,omitempty"`
+
+	// Country portion of the address.
+	// Formatted as a two-letter country code specified in ISO 3166-1 alpha-2.
+	Country string `json:"country,omitempty"`
+
+	// Line one of the street address.
+	Line1 string `json:"line1,omitempty"`
+
+	// Line two of the street address.
+	Line2 string `json:"line2,omitempty"`
+
+	// State / County / Province / Region portion of the address.
+	// If the country is US or Canada, then district is required
+	// and should use the two-letter code for the subdivision.
+	District string `json:"district,omitempty"`
+
+	// Postal / ZIP code of the address.
+	PostalCode string `json:"postalCode,omitempty"`
+}
+
+// CardVerification indicates the status of the card for verification purposes.
+type CardVerification struct {
+	// Status of the AVS check. Raw AVS response, expressed as an upper-case letter.
+	// not_requested indicates check was not made. pending is pending/processing.
+	Avs string `json:"avs,omitempty"`
+
+	// Enumerated status of the check.
+	// not_requested indicates check was not made.
+	// pass indicates value is correct.
+	// fail indicates value is incorrect.
+	// unavailable indicates card issuer did not do the provided check.
+	// pending indicates check is pending/processing.
+	Cvv string `json:"cvv,omitempty"`
+}
+
+// RiskEvaluation contains the Result of risk evaluation.
+// Only present if the payment is denied by Circle's risk service.
+type RiskEvaluation struct {
+	// Enumerated decision of the account.
+	// Options: approved, denied, review
+	Decision string `json:"decision,omitempty"`
+
+	// Risk reason for the definitive decision outcome.
+	Reason string `json:"reason,omitempty"`
+}
+
+// Metadata is the object containing metadata for the entity.
+type Metadata struct {
+	// Email of the user.
+	Email string `json:"email,omitempty"`
+
+	// Phone number of the user in E.164 format.
+	// We recommend using a library such as libphonenumber to parse and validate phone numbers.
+	PhoneNumber string `json:"phoneNumber,omitempty"`
+}
+
+// Card is the object contain the card data returned from the API.
+type Card struct {
+	// Unique system generated identifier for the payment item.
+	ID string `json:"id,omitempty"`
+
+	// Status of the account.
+	// A pending status indicates that the linking is in-progress;
+	// complete indicates the account was linked successfully;
+	// failed indicates it failed.
+	Status string `json:"status,omitempty"`
+
+	// Object containing billing details for the card.
+	BillingDetails *BillingDetails `json:"billingDetails,omitempty"`
+
+	// Two digit number representing the card's expiration month.
+	ExpMonth int `json:"expMonth,omitempty"`
+
+	// Four digit number representing the card's expiration year.
+	ExpYear int `json:"expYear,omitempty"`
+
+	// The network of the card.
+	// options: VISA, MASTERCARD, AMEX, UNKNOWN
+	Network string `json:"network,omitempty"`
+
+	// The last 4 digits of the card.
+	Last4 string `json:"last4,omitempty"`
+
+	// The bank identification number (BIN), the first 6 digits of the card.
+	Bin string `json:"bin,omitempty"`
+
+	// The country code of the issuer bank. Follows the ISO 3166-1 alpha-2 standard.
+	IssuerCountry string `json:"issuerCountry,omitempty"`
+
+	// The funding type of the card. Possible values are credit, debit, prepaid, and unknown.
+	FundingType string `json:"fundingType,omitempty"`
+
+	// A UUID that uniquely identifies the account number.
+	// If the same account is used more than once, each card object will have a different id,
+	// but the fingerprint will stay the same.
+	Fingerprint string `json:"fingerprint,omitempty"`
+
+	// Indicates the failure reason of the card verification. Only present on cards with failed verification.
+	// Possible values are [verification_failed, verification_fraud_detected, verification_denied,
+	// verification_not_supported_by_issuer, verification_stopped_by_issuer, card_failed, card_invalid,
+	// card_address_mismatch, card_zip_mismatch, card_cvv_invalid, card_expired, card_limit_violated,
+	// card_not_honored, card_cvv_required, credit_card_not_allowed, card_account_ineligible, card_network_unsupported]'
+	ErrorCode string `json:"errorCode,omitempty"`
+
+	// Indicates the status of the card for verification purposes.
+	Verification *CardVerification `json:"verification,omitempty"`
+
+	// Results of risk evaluation. Only present if the payment is denied by Circle's risk service.
+	RiskEvaluation *RiskEvaluation `json:"riskEvaluation,omitempty"`
+
+	// Object containing metadata for the card
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// ISO-8601 UTC date/time format of the card creation date.
+	CreateDate string `json:"createDate,omitempty"`
+
+	// ISO-8601 UTC date/time format of the card update date.
+	UpdateDate string `json:"updateDate"`
+}
+
+// CreateMetadataRequest contains the data to create metadata for entities.
+type CreateMetadataRequest struct {
+	// Email of the user.
+	Email string `json:"email,omitempty"`
+
+	// Phone number of the user in E.164 format.
+	// We recommend using a library such as libphonenumber to parse and validate phone numbers.
+	PhoneNumber string `json:"phoneNumber,omitempty"`
+
+	// Hash of the session identifier; typically of the end user.
+	// This helps us make risk decisions and prevent fraud.
+	// IMPORTANT: Please hash the session identifier to prevent sending us actual session identifiers.
+	SessionID string `json:"sessionId,omitempty"`
+
+	// Single IPv4 or IPv6 address of user.
+	IPAddress string `json:"ipAddress,omitempty"`
+}
+
+// CreateCardRequest contains the data to create a card.
+type CreateCardRequest struct {
+	// Universally unique identifier (UUID v4) idempotency key.
+	// This key is utilized to ensure exactly-once execution of mutating requests.
+	IdempotencyKey string `json:"idempotencyKey,omitempty"`
+
+	// Universally unique identifier (UUID v4) of the public key used in encryption.
+	// NOTE the sandbox environment uses the default value of key1.
+	// For this reason the example supplied is key1 rather than a UUID.
+	KeyID string `json:"keyId,omitempty"`
+
+	// PGP encrypted base64 encoded string. Contains Number and CVV.
+	EncryptedData string `json:"encryptedData,omitempty"`
+
+	// Object containing billing details for the card.
+	BillingDetails *BillingDetails `json:"billingDetails,omitempty"`
+
+	// Two digit number representing the card's expiration month.
+	ExpMonth int `json:"expMonth,omitempty"`
+
+	// Four digit number representing the card's expiration year.
+	ExpYear int `json:"expYear,omitempty"`
+
+	// Object containing metadata for the card creation process
+	Metadata *CreateMetadataRequest `json:"metadata,omitempty"`
+}
+
+// UpdateCardRequest contains the data to update a card.
+type UpdateCardRequest struct {
+	// Universally unique identifier (UUID v4) of the public key used in encryption.
+	// NOTE the sandbox environment uses the default value of key1.
+	// For this reason the example supplied is key1 rather than a UUID.
+	KeyID string `json:"keyId,omitempty"`
+
+	// PGP encrypted base64 encoded string. Contains Number and CVV.
+	EncryptedData string `json:"encryptedData,omitempty"`
+
+	// Two digit number representing the card's expiration month.
+	ExpMonth int `json:"expMonth,omitempty"`
+
+	// Four digit number representing the card's expiration year.
+	ExpYear int `json:"expYear,omitempty"`
+}
+
+// BankAddress contains address details for the bank, as provided during bank account creation.
+type BankAddress struct {
+	// Name of the bank.
+	// This property is required for bank accounts outside of the US that do not support IBAN'
+	BankName string `json:"bankName,omitempty"`
+
+	// City portion of the address.
+	// This property is required for bank accounts outside of the US.
+	City string `json:"city,omitempty"`
+
+	// Country portion of the address.
+	// Formatted as a two-letter country code specified in ISO 3166-1 alpha-2.
+	Country string `json:"country,omitempty"`
+
+	// Line one of the street address.
+	Line1 string `json:"line1,omitempty"`
+
+	// Line two of the street address.
+	Line2 string `json:"line2,omitempty"`
+
+	// State / County / Province / Region portion of the address.
+	// US and Canada use the two-letter code for the subdivision.
+	District string `json:"district,omitempty"`
+}
+
+// BankAccount is the object contain the bank account data returned from the API.
+type BankAccount struct {
+	// Unique system generated identifier for the payment item.
+	ID string `json:"id,omitempty"`
+
+	// Status of the account.
+	// A pending status indicates that the linking is in-progress;
+	// complete indicates the account was linked successfully;
+	// failed indicates it failed.
+	Status string `json:"status,omitempty"`
+
+	// The redacted account number of the ACH account.
+	AccountNumber string `json:"accountNumber,omitempty"`
+
+	// The routing number of the ACH account.
+	RoutingNumber string `json:"routingNumber,omitempty"`
+
+	// Object containing billing details for the bank account.
+	BillingDetails *BillingDetails `json:"billingDetails,omitempty"`
+
+	// The address details for the bank, as provided during bank account creation.
+	BankAddress *BankAddress `json:"bankAddress,omitempty"`
+
+	// A UUID that uniquely identifies the account number.
+	// If the same account is used more than once, each card object will have a different id,
+	// but the fingerprint will stay the same.
+	Fingerprint string `json:"fingerprint,omitempty"`
+
+	// Indicates the failure reason of the ACH account. Only present on failed accounts.
+	// Possible values are [bank_account_authorization_expired, bank_account_error,
+	// bank_account_ineligible, bank_account_not_found, bank_account_unauthorized,
+	// unsupported_routing_number, verification_failed].
+	ErrorCode string `json:"errorCode,omitempty"`
+
+	// Results of risk evaluation. Only present if the payment is denied by Circle's risk service.
+	RiskEvaluation *RiskEvaluation `json:"riskEvaluation,omitempty"`
+
+	// Object containing metadata for the bank account
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// ISO-8601 UTC date/time format of the bank account creation date.
+	CreateDate string `json:"createDate,omitempty"`
+
+	// ISO-8601 UTC date/time format of the bank account update date.
+	UpdateDate string `json:"updateDate"`
+}
+
+// CreateBankAccountRequest contains the data to create a bank account (ACH).
+type CreateBankAccountRequest struct {
+	// Universally unique identifier (UUID v4) idempotency key.
+	// This key is utilized to ensure exactly-once execution of mutating requests.
+	IdempotencyKey string `json:"idempotencyKey,omitempty"`
+
+	// The token for the ACH account provided by the processor (Plaid).
+	PlaidProcessorToken string `json:"plaidProcessorToken,omitempty"`
+
+	// Billing details of the account holder.
+	BillingDetails *BillingDetails `json:"billingDetails,omitempty"`
+
+	// Object containing metadata for the bank account creation process
+	Metadata *CreateMetadataRequest `json:"metadata,omitempty"`
+}
+
+// Amount object for the payment capture.
+type Amount struct {
+	// Magnitude of the amount, in units of the currency.
+	Amount string `json:"amount,omitempty"`
+
+	// Currency code for the amount.
+	Currency string `json:"currency,omitempty"`
+}
+
+// Source object used for the payment.
+type Source struct {
+	// Unique system generated identifier for the payment item.
+	ID string `json:"id"`
+
+	// Type of the source.
+	// options: card, ach, wire, sepa
+	Type string `json:"type"`
+}
+
+// RequiredAction indicates when the payment status is action_required,
+// this object summarizes the required additional steps.
+type RequiredAction struct {
+	// The type of action that is required to proceed with the payment. Currently only one type is supported.
+	Type string `json:"type,omitempty"`
+
+	// The URL to bring the user to in order to complete the payment.
+	RedirectURL string `json:"redirectUrl,omitempty"`
+}
+
+// PaymentVerification indicates the status of the payment verification.
+// This property will be present once the payment is confirmed.
+type PaymentVerification struct {
+	// Status of the AVS check. Raw AVS response, expressed as an upper-case letter.
+	// not_requested indicates check was not made.
+	// pending is pending/processing.
+	Avs string `json:"avs,omitempty"`
+
+	// Enumerated status of the check.
+	// not_requested indicates check was not made.
+	// pass indicates value is correct.
+	// fail indicates value is incorrect.
+	// unavailable indicates card issuer did not do the provided check.
+	// pending indicates check is pending/processing.
+	Cvv string `json:"cvv,omitempty"`
+
+	// Enumerated status of the check.
+	// pass indicates successful 3DS authentication.
+	// fail indicates failed 3DS authentication.
+	ThreeDSecure string `json:"threeDSecure"`
+
+	// ECI (electronic commerce indicator) value returned by Directory Servers
+	// (namely Visa, MasterCard, JCB, and American Express) indicating the outcome
+	// of authentication attempted on transactions enforced by 3DS.
+	Eci string `json:"eci,omitempty"`
+}
+
+// Payment is the object contain the payment data returned from the API.
+type Payment struct {
+	// Unique system generated identifier for the payment item.
+	ID string `json:"id,omitempty"`
+
+	// Type of the payment object.
+	// options: payment, refund, cancel
+	Type string `json:"type"`
+
+	// Unique system generated identifier for the merchant.
+	MerchantID string `json:"merchantId"`
+
+	// Unique system generated identifier for the wallet of the merchant.
+	MerchantWalletID string `json:"merchantWalletId"`
+
+	// Amount object for the payment
+	Amount *Amount `json:"amount,omitempty"`
+
+	// The payment source.
+	Source *Source `json:"source,omitempty"`
+
+	// Enumerated description of the payment.
+	Description string `json:"description,omitempty"`
+
+	// Enumerated status of the payment.
+	// pending means the payment is waiting to be processed.
+	// confirmed means the payment has been approved by the bank and the merchant can treat it as successful,
+	// but settlement funds are not yet available to the merchant.
+	// paid means settlement funds have been received and are available to the merchant.
+	// failed means something went wrong (most commonly that the payment was denied).
+	// action_required means that additional steps are required to process this payment;
+	// refer to requiredAction for more details.
+	// Terminal states are paid and failed.
+	Status string `json:"status,omitempty"`
+
+	// Determines if a payment has successfully been captured.
+	// This property is only present for payments that did not use auto capture.
+	Captured *bool `json:"captured,omitempty"`
+
+	CaptureAmount *Amount `json:"captureAmount,omitempty"`
+
+	// ISO-8601 UTC date/time format.
+	CaptureDate string `json:"captureDate,omitempty"`
+
+	// When the payment status is action_required, this object summarizes the required additional steps.
+	RequiredAction *RequiredAction `json:"requiredAction,omitempty"`
+
+	// Indicates the status of the payment verification. This property will be present once the payment is confirmed.
+	Verification *PaymentVerification `json:"verification,omitempty"`
+
+	// Fees object for the payment
+	Fees *Amount `json:"fees,omitempty"`
+
+	// Payment tracking reference. Will be present once known.
+	TrackingRef string `json:"trackingRef,omitempty"`
+
+	// External network identifier which will be present once provided from the applicable network.
+	ExternalRef string `json:"externalRef,omitempty"`
+
+	// Indicates the failure reason of a payment. Only present for payments in failed state.
+	// Possible values are [payment_failed, payment_fraud_detected, payment_denied,
+	// payment_not_supported_by_issuer, payment_not_funded, payment_unprocessable,
+	// payment_stopped_by_issuer, payment_canceled, payment_returned, payment_failed_balance_check,
+	// card_failed, card_invalid, card_address_mismatch, card_zip_mismatch, card_cvv_invalid,
+	// card_expired, card_limit_violated, card_not_honored, card_cvv_required, credit_card_not_allowed,
+	// card_account_ineligible, card_network_unsupported, channel_invalid, unauthorized_transaction,
+	// bank_account_ineligible, bank_transaction_error, invalid_account_number, invalid_wire_rtn,
+	// invalid_ach_rtn, vendor_inactive]'
+	ErrorCode string `json:"errorCode,omitempty"`
+
+	// Object containing metadata for the payment
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// Results of risk evaluation. Only present if the payment is denied by Circle's risk service.
+	RiskEvaluation *RiskEvaluation `json:"riskEvaluation,omitempty"`
+
+	// The channel identifier that can be set for the payment. When not provided, the default channel is used.
+	Channel string `json:"channel,omitempty"`
+
+	// ISO-8601 UTC date/time format of the payment creation date.
+	CreateDate string `json:"createDate,omitempty"`
+
+	// ISO-8601 UTC date/time format of the payment update date.
+	UpdateDate string `json:"updateDate,omitempty"`
+
+	// Status information of the related cancel. This property is only present on canceled payment or refund items.
+	Cancel *Payment `json:"cancel,omitempty"`
+
+	// Status information of the related payment. This property is only present on refund or cancel items.
+	OriginalPayment *Payment `json:"originalPayment,omitempty"`
+
+	// Array of refunded payments.
+	Refunds []Payment `json:"refunds,omitempty"`
+}
+
+// ListPaymentsRequest contains the data to list payments.
+type ListPaymentsRequest struct {
+	// Universally unique identifier (UUID v4) for the source.
+	// Filter results to fetch only payments made from the provided source.
+	Source string `json:"source,omitempty"`
+
+	// Queries items with the specified settlement id. Matches any settlement id if unspecified.
+	SettlementID string `json:"settlementId,omitempty"`
+
+	// Source account type. Filters the results to fetch all payments made from a specified account type.
+	// Matches any source type if unspecified.
+	Type []string `json:"type,omitempty"`
+
+	// Queries items with the specified status. Matches any status if unspecified.
+	Status string `json:"status,omitempty"`
+}
+
+// CreatePaymentRequest contains the data to create a payment.
+type CreatePaymentRequest struct {
+	// Universally unique identifier (UUID v4) idempotency key.
+	// This key is utilized to ensure exactly-once execution of mutating requests.
+	IdempotencyKey string `json:"idempotencyKey,omitempty"`
+
+	// Universally unique identifier (UUID v4) of the public key used in encryption.
+	// NOTE the sandbox environment uses the default value of key1.
+	// For this reason the example supplied is key1 rather than a UUID.
+	KeyID string `json:"keyId,omitempty"`
+
+	// Object containing metadata for the payment creation process
+	Metadata *CreateMetadataRequest `json:"metadata,omitempty"`
+
+	// Amount object for the payment
+	Amount *Amount `json:"amount,omitempty"`
+
+	// Triggers the automatic capture of the full payment amount.
+	// If set to false the payment will only be authorized but not captured.
+	AutoCapture bool `json:"autoCapture"`
+
+	// Indicates the verification method for this payment.
+	Verification string `json:"verification,omitempty"`
+
+	// The URL to redirect users to after successful 3DS authentication.
+	VerificationSuccessURL string `json:"verificationSuccessUrl,omitempty"`
+
+	// The URL to redirect users to after failed 3DS authentication.
+	VerificationFailureURL string `json:"verificationFailureUrl,omitempty"`
+
+	// Source object used for the payment
+	Source *Source `json:"source,omitempty"`
+
+	// Description of the payment with length restriction of 240 characters.
+	Description string `json:"description,omitempty"`
+
+	// PGP encrypted base64 encoded string. Contains CVV.
+	EncryptedData string `json:"encryptedData,omitempty"`
+
+	// The channel identifier that can be set for the payment. When not provided, the default channel is used.
+	Channel string `json:"channel,omitempty"`
+}
+
+// CapturePaymentRequest contains the data to capture a payment.
+type CapturePaymentRequest struct {
+	// Universally unique identifier (UUID v4) idempotency key.
+	// This key is utilized to ensure exactly-once execution of mutating requests.
+	IdempotencyKey string `json:"idempotencyKey,omitempty"`
+
+	// Amount object for the payment capture
+	Amount *Amount `json:"amount,omitempty"`
+}
+
+// CancelPaymentRequest contains the data to cancel a payment.
+type CancelPaymentRequest struct {
+	// Universally unique identifier (UUID v4) idempotency key.
+	// This key is utilized to ensure exactly-once execution of mutating requests.
+	IdempotencyKey string `json:"idempotencyKey,omitempty"`
+
+	// Enumerated reason for a returned payment.
+	// Providing this reason in the request is recommended (to improve risk evaluation) but not required.
+	Reason string `json:"reason,omitempty"`
+}
+
+// RefundPaymentRequest contains the data to refund a payment.
+type RefundPaymentRequest struct {
+	// Universally unique identifier (UUID v4) idempotency key.
+	// This key is utilized to ensure exactly-once execution of mutating requests.
+	IdempotencyKey string `json:"idempotencyKey,omitempty"`
+
+	// Amount object for the payment capture
+	Amount *Amount `json:"amount,omitempty"`
+
+	// Enumerated reason for a returned payment.
+	// Providing this reason in the request is recommended (to improve risk evaluation) but not required.
+	Reason string `json:"reason,omitempty"`
+}

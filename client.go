@@ -31,7 +31,7 @@ type requestOptions struct {
 	endpoint string
 
 	// Operation parameters, if any.
-	input map[string]interface{}
+	input interface{}
 
 	// Result holder, if any.
 	output interface{}

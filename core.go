@@ -64,19 +64,20 @@ func (cl *Client) CreateDepositAddress(
 		endpoint:   "v1/businessAccount/wallets/addresses/deposit",
 		unwrapData: true,
 		output:     address,
-		input: map[string]interface{}{
-			"currency": string(currency),
-			"chain":    string(chain),
-		},
 	}
 	for _, opt := range opts {
 		if err := opt(req); err != nil {
 			return nil, err
 		}
 	}
-	if req.idempotencyKey != "" {
-		req.input["idempotencyKey"] = req.idempotencyKey
+	input := map[string]interface{}{
+		"currency": string(currency),
+		"chain":    string(chain),
 	}
+	if req.idempotencyKey != "" {
+		input["idempotencyKey"] = req.idempotencyKey
+	}
+	req.input = input
 	if err := cl.dispatch(req); err != nil {
 		return nil, err
 	}
@@ -119,22 +120,23 @@ func (cl *Client) AddRecipientAddress(
 		endpoint:   "v1/businessAccount/wallets/addresses/recipient",
 		unwrapData: true,
 		output:     &res,
-		input: map[string]interface{}{
-			"address":     addr.Address,
-			"addressTag":  addr.AddressTag,
-			"currency":    addr.Currency,
-			"chain":       addr.Chain,
-			"description": desc,
-		},
 	}
 	for _, opt := range opts {
 		if err := opt(req); err != nil {
 			return "", err
 		}
 	}
-	if req.idempotencyKey != "" {
-		req.input["idempotencyKey"] = req.idempotencyKey
+	input := map[string]interface{}{
+		"address":     addr.Address,
+		"addressTag":  addr.AddressTag,
+		"currency":    addr.Currency,
+		"chain":       addr.Chain,
+		"description": desc,
 	}
+	if req.idempotencyKey != "" {
+		input["idempotencyKey"] = req.idempotencyKey
+	}
+	req.input = input
 	if err := cl.dispatch(req); err != nil {
 		return "", err
 	}
