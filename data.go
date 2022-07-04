@@ -379,15 +379,6 @@ type CreateBankAccountRequest struct {
 	Metadata *CreateMetadataRequest `json:"metadata,omitempty"`
 }
 
-// Amount object for the payment capture.
-type Amount struct {
-	// Magnitude of the amount, in units of the currency.
-	Amount string `json:"amount,omitempty"`
-
-	// Currency code for the amount.
-	Currency string `json:"currency,omitempty"`
-}
-
 // Source object used for the payment.
 type Source struct {
 	// Unique system generated identifier for the payment item.
@@ -451,7 +442,7 @@ type Payment struct {
 	MerchantWalletID string `json:"merchantWalletId"`
 
 	// Amount object for the payment
-	Amount *Amount `json:"amount,omitempty"`
+	Amount *BalanceEntry `json:"amount,omitempty"`
 
 	// The payment source.
 	Source *Source `json:"source,omitempty"`
@@ -474,7 +465,7 @@ type Payment struct {
 	// This property is only present for payments that did not use auto capture.
 	Captured *bool `json:"captured,omitempty"`
 
-	CaptureAmount *Amount `json:"captureAmount,omitempty"`
+	CaptureAmount *BalanceEntry `json:"captureAmount,omitempty"`
 
 	// ISO-8601 UTC date/time format.
 	CaptureDate string `json:"captureDate,omitempty"`
@@ -486,7 +477,7 @@ type Payment struct {
 	Verification *PaymentVerification `json:"verification,omitempty"`
 
 	// Fees object for the payment
-	Fees *Amount `json:"fees,omitempty"`
+	Fees *BalanceEntry `json:"fees,omitempty"`
 
 	// Payment tracking reference. Will be present once known.
 	TrackingRef string `json:"trackingRef,omitempty"`
@@ -562,7 +553,7 @@ type CreatePaymentRequest struct {
 	Metadata *CreateMetadataRequest `json:"metadata,omitempty"`
 
 	// Amount object for the payment
-	Amount *Amount `json:"amount,omitempty"`
+	Amount *BalanceEntry `json:"amount,omitempty"`
 
 	// Triggers the automatic capture of the full payment amount.
 	// If set to false the payment will only be authorized but not captured.
@@ -597,7 +588,7 @@ type CapturePaymentRequest struct {
 	IdempotencyKey string `json:"idempotencyKey,omitempty"`
 
 	// Amount object for the payment capture
-	Amount *Amount `json:"amount,omitempty"`
+	Amount *BalanceEntry `json:"amount,omitempty"`
 }
 
 // CancelPaymentRequest contains the data to cancel a payment.
@@ -618,7 +609,7 @@ type RefundPaymentRequest struct {
 	IdempotencyKey string `json:"idempotencyKey,omitempty"`
 
 	// Amount object for the payment capture
-	Amount *Amount `json:"amount,omitempty"`
+	Amount *BalanceEntry `json:"amount,omitempty"`
 
 	// Enumerated reason for a returned payment.
 	// Providing this reason in the request is recommended (to improve risk evaluation) but not required.
@@ -642,10 +633,10 @@ type PayoutDestination struct {
 // the total returned amount to the source wallet.
 type PayoutAdjustment struct {
 	// Credit object for the adjustment
-	FxCredit *Amount `json:"fxCredit,omitempty"`
+	FxCredit *BalanceEntry `json:"fxCredit,omitempty"`
 
 	// Debit object for the adjustment
-	FxDebit *Amount `json:"fxDebit,omitempty"`
+	FxDebit *BalanceEntry `json:"fxDebit,omitempty"`
 }
 
 // PayoutReturn contains data if the payout is returned by the bank.
@@ -657,10 +648,10 @@ type PayoutReturn struct {
 	PayoutID string `json:"payoutId,omitempty"`
 
 	// Amount object for the return
-	Amount *Amount `json:"amount,omitempty"`
+	Amount *BalanceEntry `json:"amount,omitempty"`
 
 	// Fees object for the return
-	Fees *Amount `json:"fees,omitempty"`
+	Fees *BalanceEntry `json:"fees,omitempty"`
 
 	// Reason for the return.
 	Reason string `json:"reason,omitempty"`
@@ -689,10 +680,10 @@ type Payout struct {
 	Destination *PayoutDestination `json:"destination,omitempty"`
 
 	// Amount object for the payout
-	Amount *Amount `json:"amount,omitempty"`
+	Amount *BalanceEntry `json:"amount,omitempty"`
 
 	// Fees object for the payout
-	Fees *Amount `json:"fees,omitempty"`
+	Fees *BalanceEntry `json:"fees,omitempty"`
 
 	// Status of the payout. Status pending indicates that the payout is in process;
 	// complete indicates it finished successfully;
@@ -767,8 +758,128 @@ type CreatePayoutRequest struct {
 	PayoutDestination *Source `json:"payoutDestination,omitempty"`
 
 	// Amount object for the payout
-	Amount *Amount `json:"amount,omitempty"`
+	Amount *BalanceEntry `json:"amount,omitempty"`
 
 	// Additional properties related to the payout beneficiary.
 	Metadata *CreatePayoutMetadataRequest `json:"metadata,omitempty"`
+}
+
+// Settlement is the object contain the settlement data returned from the API.
+type Settlement struct {
+	// Unique system generated identifier for the payment item.
+	ID string `json:"id,omitempty"`
+
+	// If this settlement was used for a marketplace payment, the wallet involved in the settlement.
+	// Not included for standard merchant settlements.
+	MerchantWalletID string `json:"merchantWalletId,omitempty"`
+
+	// Total debits for the settlement
+	TotalDebits *BalanceEntry `json:"totalDebits,omitempty"`
+
+	// Total credits for the settlement
+	TotalCredits *BalanceEntry `json:"totalCredits,omitempty"`
+
+	// Payment fees for the settlement
+	PaymentFees *BalanceEntry `json:"paymentFees,omitempty"`
+
+	// Chargeback fees for the settlement
+	ChargebackFees *BalanceEntry `json:"chargebackFees,omitempty"`
+
+	// ISO-8601 UTC date/time format of the settlement creation date.
+	CreateDate string `json:"createDate,omitempty"`
+
+	// ISO-8601 UTC date/time format of the settlement update date.
+	UpdateDate string `json:"updateDate,omitempty"`
+}
+
+// ChargeBackHistory contains the data for one item of the chargeback object history property.
+type ChargeBackHistory struct {
+	// Enumerated type of the chargeback history event. 1st Chargeback represents the first stage of the dispute
+	// procedure initiated by the cardholder’s issuing bank.  2nd Chargeback represents the second stage of the
+	// dispute procedure initiated by the cardholder’s issuing bank (This stage is MasterCard only).
+	// Chargeback Reversal represents when 1st Chargeback or 2nd Chargeback is withdrawn by the issuer.
+	// Representment represents the stage when merchants decided to dispute 1st Chargeback or 2nd Chargeback.
+	//Chargeback Settlement can imply one of the two: 1) If merchant or marketplace is taking the lost of the
+	// chargeback, money will be debit from the wallet during this stage.
+	//If merchant of marketplace successfully dispute the chargeback, money will be credit back to the wallet
+	// during this stage.
+	//1st Chargeback, 2nd Chargeback, Chargeback Reversal, Representment, Chargeback Settlement
+	Type string `json:"type,omitempty"`
+
+	// Chargeback amount object for the history
+	ChargeBackAmount *BalanceEntry `json:"chargeBackAmount,omitempty"`
+
+	// Fee object for the history
+	Fee *BalanceEntry `json:"fee,omitempty"`
+
+	// The reason the chargeback was created.
+	Description string `json:"description,omitempty"`
+
+	// Unique system generated identifier for the settlement related to the chargeback history.
+	SettlementID string `json:"settlementId,omitempty"`
+
+	// ISO-8601 UTC date/time format of the history creation date.
+	CreateDate string `json:"createDate,omitempty"`
+}
+
+// ChargeBack is the object contain the chargeback data returned from the API.
+type ChargeBack struct {
+	// Unique system generated identifier for the payment item.
+	ID string `json:"id,omitempty"`
+
+	// Unique system generated identifier for the payment that is associated to the chargeback item.
+	PaymentID string `json:"paymentId,omitempty"`
+
+	// Unique system generated identifier for the merchant.
+	MerchantID string `json:"merchantId,omitempty"`
+
+	// Reason code given by the card network for the chargeback item.
+	ReasonCode string `json:"reasonCode,omitempty"`
+
+	// Enumerated category of the chargeback status codes based on the chargeback status code.
+	// options: Canceled Recurring Payment,  Customer Dispute, Fraudulent, General, Processing Error, Not Defined
+	Category string `json:"category,omitempty"`
+
+	// The chargeback item's history list will be sorted by create date descending:
+	// more recent chargeback statuses will be at the beginning of the list.
+	History []ChargeBackHistory `json:"history,omitempty"`
+}
+
+// Reversal is the object contain the reversal data returned from the API.
+type Reversal struct {
+	// Unique system generated identifier for the payment item.
+	ID string `json:"id,omitempty"`
+
+	// Unique system generated identifier for the payment that is associated to the chargeback item.
+	PaymentID string `json:"paymentId,omitempty"`
+
+	// Amount object of the reversal
+	Amount *BalanceEntry `json:"amount,omitempty"`
+
+	// Enumerated description of the payment.
+	Description string `json:"description,omitempty"`
+
+	// Enumerated status of the payment. pending means the payment is waiting to be processed.
+	// confirmed means the payment has been approved by the bank and the merchant can treat it as successful,
+	// but settlement funds are not yet available to the merchant.
+	// paid means settlement funds have been received and are available to the merchant.
+	// failed means something went wrong (most commonly that the payment was denied).
+	// Terminal states are paid and failed.
+	Status string `json:"status,omitempty"`
+
+	// Enumerated reason for a returned payment.
+	// Providing this reason in the request is recommended (to improve risk evaluation) but not required.
+	// options: duplicate fraudulent, requested_by_customer, bank_transaction_error, invalid_account_number,
+	// insufficient_funds, payment_stopped_by_issuer, payment_returned, bank_account_ineligible,
+	// invalid_ach_rtn, unauthorized_transaction, payment_failed
+	Reason string `json:"reason,omitempty"`
+
+	// Fees object for the reversal
+	Fees *BalanceEntry `json:"fees,omitempty"`
+
+	// ISO-8601 UTC date/time format of the reversal creation date.
+	CreateDate string `json:"createDate,omitempty"`
+
+	// ISO-8601 UTC date/time format of the reversal update date.
+	UpdateDate string `json:"updateDate,omitempty"`
 }

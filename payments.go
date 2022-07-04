@@ -311,3 +311,118 @@ func (mod *paymentsAPI) RefundPayment(id string, r RefundPaymentRequest, opts ..
 	}
 	return res, nil
 }
+
+// GetSettlement returns the details of the specified settlement.
+// https://developers.circle.com/reference/payments-settlements-get-id
+func (mod *paymentsAPI) GetSettlement(id string, opts ...CallOption) (*Settlement, error) {
+	res := new(Settlement)
+	req := &requestOptions{
+		method:     http.MethodGet,
+		endpoint:   "v1/settlements/" + id,
+		unwrapData: true,
+		output:     res,
+	}
+	for _, opt := range opts {
+		if err := opt(req); err != nil {
+			return nil, err
+		}
+	}
+	if err := mod.cl.dispatch(req); err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// ListSettlements returns a list of settlements based on the passed options.
+// https://developers.circle.com/reference/payments-settlements-get
+func (mod *paymentsAPI) ListSettlements(opts ...CallOption) ([]*Settlement, error) {
+	var list []*Settlement
+	req := &requestOptions{
+		method:     http.MethodGet,
+		endpoint:   "v1/settlements",
+		unwrapData: true,
+		output:     &list,
+	}
+	for _, opt := range opts {
+		if err := opt(req); err != nil {
+			return nil, err
+		}
+	}
+	if err := mod.cl.dispatch(req); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+// GetChargeback returns the details of the specified chargeback.
+// https://developers.circle.com/reference/payments-chargebacks-get-id
+func (mod *paymentsAPI) GetChargeback(id string, opts ...CallOption) (*ChargeBack, error) {
+	res := new(ChargeBack)
+	req := &requestOptions{
+		method:     http.MethodGet,
+		endpoint:   "v1/chargebacks/" + id,
+		unwrapData: true,
+		output:     res,
+	}
+	for _, opt := range opts {
+		if err := opt(req); err != nil {
+			return nil, err
+		}
+	}
+	if err := mod.cl.dispatch(req); err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// ListChargebacks returns a list of chargebacks based on the passed options.
+// https://developers.circle.com/reference/payments-chargebacks-get
+func (mod *paymentsAPI) ListChargebacks(paymentID string, opts ...CallOption) ([]*ChargeBack, error) {
+	var list []*ChargeBack
+	req := &requestOptions{
+		method:     http.MethodGet,
+		endpoint:   "v1/chargebacks",
+		unwrapData: true,
+		output:     &list,
+	}
+	for _, opt := range opts {
+		if err := opt(req); err != nil {
+			return nil, err
+		}
+	}
+
+	if paymentID != "" {
+		req.addQueryParam("paymentID", paymentID)
+	}
+
+	if err := mod.cl.dispatch(req); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+// ListReversals returns a list of reversals based on the passed options.
+// https://developers.circle.com/reference/payments-reversals-get
+func (mod *paymentsAPI) ListReversals(status string, opts ...CallOption) ([]*Reversal, error) {
+	var list []*Reversal
+	req := &requestOptions{
+		method:     http.MethodGet,
+		endpoint:   "v1/reversals",
+		unwrapData: true,
+		output:     &list,
+	}
+	for _, opt := range opts {
+		if err := opt(req); err != nil {
+			return nil, err
+		}
+	}
+
+	if status != "" {
+		req.addQueryParam("status", status)
+	}
+
+	if err := mod.cl.dispatch(req); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
