@@ -22,106 +22,68 @@ const (
 // Version identifier for the SDK.
 const Version = "0.1.0"
 
-// Network request options.
-type requestOptions struct {
+// RequestOptions represents network request options.
+type RequestOptions struct {
 	// HTTP method to use.
-	method string
+	Method string
 
 	// API operation endpoint.
-	endpoint string
+	Endpoint string
 
 	// Operation parameters, if any.
-	input interface{}
+	Input interface{}
 
 	// Result holder, if any.
-	output interface{}
+	Output interface{}
 
 	// Automatically unwrap the "data" key in the response to the output
 	// holder provided.
-	unwrapData bool
+	UnwrapData bool
 
 	// Produce idempotent results on POST requests; must be a valid UUID.
 	// if none is provided a new one will be created by default.
-	idempotencyKey string
+	IdempotencyKey string
 
 	// Custom request context.
-	ctx context.Context
+	Ctx context.Context
 
 	// Custom query parameters.
-	queryParams url.Values
+	QueryParams url.Values
 }
 
-// Register a new query parameter.
-func (req *requestOptions) addQueryParam(key, value string) {
-	if req.queryParams == nil {
-		req.queryParams = url.Values{}
+// AddQueryParam register a new query parameter.
+func (req *RequestOptions) AddQueryParam(key, value string) {
+	if req.QueryParams == nil {
+		req.QueryParams = url.Values{}
 	}
-	req.queryParams.Add(key, value)
+	req.QueryParams.Add(key, value)
 }
 
-// Client provides access to all core Circle APIs. This core set of APIs allow you to:
-//   - Transfer digital currency (USDC) in and out of your Circle Account.
-//   - Register your own business bank accounts - if you have them.
-//   - Make transfers from / to your business bank account while seamlessly converting
-//     those funds across digital currency and traditional FIAT.
-// https://developers.circle.com/docs
+// Client contains the properties of the connection.
 type Client struct {
-	// The Circle Payments API allows you to take payments from your end users
-	// via traditional methods such as debit & credit cards, bank accounts, etc.,
-	// and receive settlement in USDC. Businesses with users already holding USDC
-	// are also able to take on-chain payments on supported blockchains.
-	//
-	// With the Circle Payments API you can:
-	//   - Take card and bank transfer payments for goods or services.
-	//   - Build a credit & debit card or bank transfer on-ramp for your crypto exchange.
-	//   - Take card or bank transfer deposits for your savings, lending, investing or P2P
-	//     payments product.
-	//   - Take USDC payments directly through on-chain transfers.
-	Payments *paymentsAPI
-
-	// The Circle Payouts API allows you to issue payouts to your customers, vendors, or
-	// suppliers in a variety of ways:
-	//   - Bank wires
-	//   - On-chain USDC transfers
-	//   - ACH (coming soon)
-	// Payouts are funded with your USDC denominated Circle Account, which can receive deposits
-	// from both traditional and blockchain payment rails.
-	Payouts *payoutsAPI
-
-	// The Circle Accounts API allows you to easily create and manage accounts and balances
-	// for your customers, and execute transfers of funds across accounts - whether they are
-	// within the Circle platform, or in / out of the platform via on-chain USDC connectivity.
-	//   - Embed US Dollar denominated accounts into your product or service without dealing
-	//     with the complexity of legacy bank account structures.
-	//   - Manage a multi-asset accounts infrastructure for your customers including seamless
-	//     transfer of funds, across hosted accounts or via on-chain USDC connectivity.
-	//   - Accept USDC deposits with minimum cost and no exposure to reversals.
-	//   - Support BTC and ETH balances in addition to USDC.
-	Accounts *accountsAPI
-
 	// User agent value to report to the service.
-	userAgent string
+	UserAgent string
 
 	// Time to maintain open the connection with the service, in seconds.
-	keepAlive uint
+	KeepAlive uint
 
 	// Maximum network connections to keep open with the service.
-	maxConnections uint
+	MaxConnections uint
 
 	// Network transport used to communicate with the service.
-	conn *http.Client
+	Conn *http.Client
 
 	// Time to wait for requests, in seconds.
-	timeout uint
+	Timeout uint
 
 	// Circle API key.
-	key string
+	Key string
 
 	// Produce trace output of requests and responses.
-	debug bool
+	Debug bool
 
 	// API backend to use.
-	backend string
+	Backend string
 }
 
 // NewClient will construct a usable service handler using the provided API key and
@@ -130,12 +92,12 @@ type Client struct {
 func NewClient(options ...Option) (*Client, error) {
 	// New client instance
 	cl := &Client{
-		timeout:        30,
-		keepAlive:      600,
-		maxConnections: 50,
-		userAgent:      "circlesdk-lib/" + Version,
-		debug:          false,
-		backend:        endpointTesting,
+		Timeout:        30,
+		KeepAlive:      600,
+		MaxConnections: 50,
+		UserAgent:      "circlesdk-lib/" + Version,
+		Debug:          false,
+		Backend:        endpointTesting,
 	}
 	for _, opt := range options {
 		if err := opt(cl); err != nil {
@@ -145,52 +107,24 @@ func NewClient(options ...Option) (*Client, error) {
 
 	// Configure base HTTP transport
 	t := &http.Transport{
-		MaxIdleConns:        int(cl.maxConnections),
-		MaxIdleConnsPerHost: int(cl.maxConnections),
+		MaxIdleConns:        int(cl.MaxConnections),
+		MaxIdleConnsPerHost: int(cl.MaxConnections),
 		DialContext: (&net.Dialer{
-			Timeout:   time.Duration(cl.timeout) * time.Second,
-			KeepAlive: time.Duration(cl.keepAlive) * time.Second,
+			Timeout:   time.Duration(cl.Timeout) * time.Second,
+			KeepAlive: time.Duration(cl.KeepAlive) * time.Second,
 		}).DialContext,
 	}
 
 	// Setup main client
-	cl.conn = &http.Client{
+	cl.Conn = &http.Client{
 		Transport: t,
-		Timeout:   time.Duration(cl.timeout) * time.Second,
+		Timeout:   time.Duration(cl.Timeout) * time.Second,
 	}
-
-	// Load API modules
-	cl.Accounts = &accountsAPI{cl}
-	cl.Payments = &paymentsAPI{cl}
-	cl.Payouts = &payoutsAPI{cl}
 	return cl, nil
 }
 
-// Ping will perform a basic reachability test. Use it to make sure your
-// client instance is properly setup.
-func (cl *Client) Ping() bool {
-	type pingResponse struct {
-		Message string `json:"message,omitempty"`
-	}
-
-	req := &requestOptions{
-		method:   http.MethodGet,
-		endpoint: "ping",
-		input:    nil,
-		output:   &pingResponse{},
-	}
-	if err := cl.dispatch(req); err != nil {
-		return false
-	}
-	res, ok := req.output.(*pingResponse)
-	if !ok {
-		return false
-	}
-	return res.Message == "pong"
-}
-
 // Dispatch a network request to the service.
-func (cl *Client) dispatch(r *requestOptions) error {
+func (cl *Client) Dispatch(r *RequestOptions) error {
 	// Build request
 	req, err := cl.newRequest(r)
 	if err != nil {
@@ -198,7 +132,7 @@ func (cl *Client) dispatch(r *requestOptions) error {
 	}
 
 	// Dump request
-	if cl.debug {
+	if cl.Debug {
 		dump, err := httputil.DumpRequest(req, true)
 		if err == nil {
 			fmt.Println("=== request ===")
@@ -207,7 +141,7 @@ func (cl *Client) dispatch(r *requestOptions) error {
 	}
 
 	// Execute request
-	res, err := cl.conn.Do(req)
+	res, err := cl.Conn.Do(req)
 	if res != nil {
 		// Properly discard request content to be able to reuse the connection.
 		defer func() {
@@ -222,7 +156,7 @@ func (cl *Client) dispatch(r *requestOptions) error {
 	}
 
 	// Dump response
-	if cl.debug {
+	if cl.Debug {
 		dump, err := httputil.DumpResponse(res, true)
 		if err == nil {
 			fmt.Println("=== response ===")
@@ -246,9 +180,9 @@ func (cl *Client) dispatch(r *requestOptions) error {
 	}
 
 	// Decode response
-	if r.output != nil {
+	if r.Output != nil {
 		// Unwrap "data" key in the response
-		if r.unwrapData {
+		if r.UnwrapData {
 			temp := map[string]interface{}{}
 			if err := json.Unmarshal(body, &temp); err != nil {
 				return fmt.Errorf("non JSON content returned: %s", body)
@@ -262,7 +196,7 @@ func (cl *Client) dispatch(r *requestOptions) error {
 		}
 
 		// Load response data in the provided output interface
-		if err = json.Unmarshal(body, r.output); err != nil {
+		if err = json.Unmarshal(body, r.Output); err != nil {
 			return fmt.Errorf("non JSON content returned: %s", body)
 		}
 	}
@@ -272,16 +206,16 @@ func (cl *Client) dispatch(r *requestOptions) error {
 }
 
 // Prepare a new API request.
-func (cl *Client) newRequest(r *requestOptions) (*http.Request, error) {
+func (cl *Client) newRequest(r *RequestOptions) (*http.Request, error) {
 	// Default context
-	if r.ctx == nil {
-		r.ctx = context.TODO()
+	if r.Ctx == nil {
+		r.Ctx = context.TODO()
 	}
 
 	// Prepare input data
 	var input io.Reader
-	if r.input != nil {
-		data, err := json.Marshal(r.input)
+	if r.Input != nil {
+		data, err := json.Marshal(r.Input)
 		if err != nil {
 			return nil, fmt.Errorf("invalid input data: %w", err)
 		}
@@ -289,22 +223,22 @@ func (cl *Client) newRequest(r *requestOptions) (*http.Request, error) {
 	}
 
 	// Build basic request
-	req, err := http.NewRequestWithContext(r.ctx, r.method, cl.backend+r.endpoint, input)
+	req, err := http.NewRequestWithContext(r.Ctx, r.Method, cl.Backend+r.Endpoint, input)
 	if err != nil {
 		return nil, err
 	}
 
 	// Add additional headers
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Authorization", "Bearer "+cl.key)
+	req.Header.Add("Authorization", "Bearer "+cl.Key)
 	req.Header.Add("Content-Type", "application/json")
-	if cl.userAgent != "" {
-		req.Header.Add("User-Agent", cl.userAgent)
+	if cl.UserAgent != "" {
+		req.Header.Add("User-Agent", cl.UserAgent)
 	}
 
 	// Add additional query parameters
-	if r.queryParams != nil {
-		req.URL.RawQuery = r.queryParams.Encode()
+	if r.QueryParams != nil {
+		req.URL.RawQuery = r.QueryParams.Encode()
 	}
 
 	return req, nil

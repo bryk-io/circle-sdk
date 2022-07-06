@@ -1,5 +1,19 @@
 package circlesdk
 
+// PayoutDestinationType contains the type value for the payout destination.
+type PayoutDestinationType string
+
+const (
+	// PayoutDestinationTypeWire = "wire".
+	PayoutDestinationTypeWire PayoutDestinationType = "wire"
+
+	// PayoutDestinationTypeAch = "ach".
+	PayoutDestinationTypeAch PayoutDestinationType = "ach"
+
+	// PayoutDestinationTypeSepa = "sepa".
+	PayoutDestinationTypeSepa PayoutDestinationType = "sepa"
+)
+
 // PayoutDestination contains the bank account details.
 type PayoutDestination struct {
 	// Unique system generated identifier for the payment item.
@@ -7,7 +21,7 @@ type PayoutDestination struct {
 
 	// The destination bank account type.
 	// options: wire, ach, sepa
-	Type string `json:"type,omitempty"`
+	Type PayoutDestinationType `json:"type,omitempty"`
 
 	// Bank name plus last four digits of the bank account number or IBAN.
 	Name string `json:"name,omitempty"`
@@ -22,6 +36,20 @@ type PayoutAdjustment struct {
 	// Debit object for the adjustment
 	FxDebit *Amount `json:"fxDebit,omitempty"`
 }
+
+// PayoutReturnStatus contains the status value for the payout return.
+type PayoutReturnStatus string
+
+const (
+	// PayoutReturnStatusPending = "pending".
+	PayoutReturnStatusPending PayoutReturnStatus = "pending"
+
+	// PayoutReturnStatusComplete = "complete".
+	PayoutReturnStatusComplete PayoutReturnStatus = "complete"
+
+	//PayoutReturnStatusFailed = "failed".
+	PayoutReturnStatusFailed PayoutReturnStatus = "failed"
+)
 
 // PayoutReturn contains data if the payout is returned by the bank.
 type PayoutReturn struct {
@@ -43,7 +71,7 @@ type PayoutReturn struct {
 	// Status of the return. A pending status indicates that the return is in process;
 	// complete indicates it finished successfully;
 	// failed indicates it failed.
-	Status string `json:"status,omitempty"`
+	Status PayoutReturnStatus `json:"status,omitempty"`
 
 	// ISO-8601 UTC date/time format of the return creation date.
 	CreateDate string `json:"createDate,omitempty"`

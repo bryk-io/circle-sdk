@@ -1,5 +1,25 @@
 package circlesdk
 
+// ChargeBackHistoryType contains the type value for the charge back history.
+type ChargeBackHistoryType string
+
+const (
+	// ChargeBackHistoryType1stChargeBack = "1st ChargeBack".
+	ChargeBackHistoryType1stChargeBack ChargeBackHistoryType = "1st ChargeBack"
+
+	// ChargeBackHistoryType2ndChargeBack = "2nd ChargeBack".
+	ChargeBackHistoryType2ndChargeBack ChargeBackHistoryType = "2nd ChargeBack"
+
+	// ChargeBackHistoryTypeChargeBackReversal = ChargeBack Reversal".
+	ChargeBackHistoryTypeChargeBackReversal ChargeBackHistoryType = "ChargeBack Reversal"
+
+	// ChargeBackHistoryTypeRepresentment = "Representment".
+	ChargeBackHistoryTypeRepresentment ChargeBackHistoryType = "Representment"
+
+	// ChargeBackHistoryTypeChargeBackSettlement = "Chargeback Settlement".
+	ChargeBackHistoryTypeChargeBackSettlement ChargeBackHistoryType = "Chargeback Settlement"
+)
+
 // ChargeBackHistory contains the data for one item of the chargeback object history property.
 type ChargeBackHistory struct {
 	// Enumerated type of the chargeback history event. 1st Chargeback represents the first stage of the dispute
@@ -12,7 +32,7 @@ type ChargeBackHistory struct {
 	//If merchant of marketplace successfully dispute the chargeback, money will be credit back to the wallet
 	// during this stage.
 	//1st Chargeback, 2nd Chargeback, Chargeback Reversal, Representment, Chargeback Settlement
-	Type string `json:"type,omitempty"`
+	Type ChargeBackHistoryType `json:"type,omitempty"`
 
 	// Chargeback amount object for the history
 	ChargeBackAmount *Amount `json:"chargeBackAmount,omitempty"`
@@ -30,6 +50,29 @@ type ChargeBackHistory struct {
 	CreateDate string `json:"createDate,omitempty"`
 }
 
+// ChargeBackCategory contains the category value for the charge back.
+type ChargeBackCategory string
+
+const (
+	// ChargeBackCategoryCanceledRecurringPayment = "Canceled Recurring Payment".
+	ChargeBackCategoryCanceledRecurringPayment ChargeBackCategory = "Canceled Recurring Payment"
+
+	// ChargeBackCategoryCustomerDispute = "Customer Dispute".
+	ChargeBackCategoryCustomerDispute ChargeBackCategory = "Customer Dispute"
+
+	// ChargeBackCategoryFraudulent = "Fraudulent".
+	ChargeBackCategoryFraudulent ChargeBackCategory = "Fraudulent"
+
+	// ChargeBackCategoryGeneral = "General".
+	ChargeBackCategoryGeneral ChargeBackCategory = "General"
+
+	// ChargeBackCategoryProcessingError = "Processing Error".
+	ChargeBackCategoryProcessingError ChargeBackCategory = "Processing Error"
+
+	// ChargeBackCategoryNotDefined = "Not Defined".
+	ChargeBackCategoryNotDefined ChargeBackCategory = "Not Defined"
+)
+
 // ChargeBack is the object contain the chargeback data returned from the API.
 type ChargeBack struct {
 	// Unique system generated identifier for the payment item.
@@ -46,7 +89,7 @@ type ChargeBack struct {
 
 	// Enumerated category of the chargeback status codes based on the chargeback status code.
 	// options: Canceled Recurring Payment,  Customer Dispute, Fraudulent, General, Processing Error, Not Defined
-	Category string `json:"category,omitempty"`
+	Category ChargeBackCategory `json:"category,omitempty"`
 
 	// The chargeback item's history list will be sorted by create date descending:
 	// more recent chargeback statuses will be at the beginning of the list.

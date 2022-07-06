@@ -25,6 +25,46 @@ type BankAddress struct {
 	District string `json:"district,omitempty"`
 }
 
+// BankAccountStatus contains the status value for the bank account.
+type BankAccountStatus string
+
+const (
+	// BankAccountStatusPending = "pending".
+	BankAccountStatusPending BankAccountStatus = "pending"
+
+	// BankAccountStatusComplete = "complete".
+	BankAccountStatusComplete BankAccountStatus = "complete"
+
+	// BankAccountStatusFailed = "failed".
+	BankAccountStatusFailed BankAccountStatus = "failed"
+)
+
+// BankAccountErrorCode contains the error code value for the bank account.
+type BankAccountErrorCode string
+
+const (
+	// BankAccountErrorCodeBankAccountAuthorizationExpired = "bank_account_authorization_expired".
+	BankAccountErrorCodeBankAccountAuthorizationExpired BankAccountErrorCode = "bank_account_authorization_expired"
+
+	// BankAccountErrorCodeBankAccountError = "bank_account_error".
+	BankAccountErrorCodeBankAccountError BankAccountErrorCode = "bank_account_error"
+
+	// BankAccountErrorCodeBankAccountIneligible = "bank_account_ineligible".
+	BankAccountErrorCodeBankAccountIneligible BankAccountErrorCode = "bank_account_ineligible"
+
+	// BankAccountErrorCodeBankAccountNotFound = "bank_account_not_found".
+	BankAccountErrorCodeBankAccountNotFound BankAccountErrorCode = "bank_account_not_found"
+
+	// BankAccountErrorCodeBankAccountUnauthorized = "bank_account_unauthorized".
+	BankAccountErrorCodeBankAccountUnauthorized BankAccountErrorCode = "bank_account_unauthorized"
+
+	// BankAccountErrorCodeUnsupportedRoutingNumber = "unsupported_routing_number".
+	BankAccountErrorCodeUnsupportedRoutingNumber BankAccountErrorCode = "unsupported_routing_number"
+
+	// BankAccountErrorCodeVerificationFailed = "verification_failed".
+	BankAccountErrorCodeVerificationFailed BankAccountErrorCode = "verification_failed"
+)
+
 // BankAccount is the object contain the bank account data returned from the API.
 type BankAccount struct {
 	// Unique system generated identifier for the payment item.
@@ -34,7 +74,7 @@ type BankAccount struct {
 	// A pending status indicates that the linking is in-progress;
 	// complete indicates the account was linked successfully;
 	// failed indicates it failed.
-	Status string `json:"status,omitempty"`
+	Status BankAccountStatus `json:"status,omitempty"`
 
 	// The redacted account number of the ACH account.
 	AccountNumber string `json:"accountNumber,omitempty"`
@@ -57,7 +97,7 @@ type BankAccount struct {
 	// Possible values are [bank_account_authorization_expired, bank_account_error,
 	// bank_account_ineligible, bank_account_not_found, bank_account_unauthorized,
 	// unsupported_routing_number, verification_failed].
-	ErrorCode string `json:"errorCode,omitempty"`
+	ErrorCode BankAccountErrorCode `json:"errorCode,omitempty"`
 
 	// Results of risk evaluation. Only present if the payment is denied by Circle's risk service.
 	RiskEvaluation *RiskEvaluation `json:"riskEvaluation,omitempty"`

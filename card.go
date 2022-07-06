@@ -1,10 +1,41 @@
 package circlesdk
 
+// CardVerificationAvs contains the avs value for the card verification.
+type CardVerificationAvs string
+
+const (
+	// CardVerificationAvsNotRequested = "not_requested".
+	CardVerificationAvsNotRequested CardVerificationAvs = "not_requested"
+
+	// CardVerificationAvsPending = "pending".
+	CardVerificationAvsPending CardVerificationAvs = "pending"
+)
+
+// CardVerificationCvv contains the cvv value for the card verification.
+type CardVerificationCvv string
+
+const (
+	// CardVerificationCvvNotRequested = "not_requested".
+	CardVerificationCvvNotRequested CardVerificationCvv = "not_requested"
+
+	// CardVerificationCvvPass = "pass".
+	CardVerificationCvvPass CardVerificationCvv = "pass"
+
+	// CardVerificationCvvFail = "fail".
+	CardVerificationCvvFail CardVerificationCvv = "fail"
+
+	// CardVerificationCvvUnavailable = "unavailable".
+	CardVerificationCvvUnavailable CardVerificationCvv = "unavailable"
+
+	// CardVerificationCvvPending = "pending".
+	CardVerificationCvvPending CardVerificationCvv = "pending"
+)
+
 // CardVerification indicates the status of the card for verification purposes.
 type CardVerification struct {
 	// Status of the AVS check. Raw AVS response, expressed as an upper-case letter.
 	// not_requested indicates check was not made. pending is pending/processing.
-	Avs string `json:"avs,omitempty"`
+	Avs CardVerificationAvs `json:"avs,omitempty"`
 
 	// Enumerated status of the check.
 	// not_requested indicates check was not made.
@@ -12,8 +43,113 @@ type CardVerification struct {
 	// fail indicates value is incorrect.
 	// unavailable indicates card issuer did not do the provided check.
 	// pending indicates check is pending/processing.
-	Cvv string `json:"cvv,omitempty"`
+	Cvv CardVerificationCvv `json:"cvv,omitempty"`
 }
+
+// CardStatus contains the status value for the card.
+type CardStatus string
+
+const (
+	// CardStatusPending = "pending".
+	CardStatusPending CardStatus = "pending"
+
+	// CardStatusComplete = "complete".
+	CardStatusComplete CardStatus = "complete"
+
+	// CardStatusFailed = "failed".
+	CardStatusFailed CardStatus = "failed"
+)
+
+// CardNetwork contains the network value for the card.
+type CardNetwork string
+
+const (
+	// CardNetworkVISA = "VISA".
+	CardNetworkVISA CardNetwork = "VISA"
+
+	// CardNetworkMASTERCARD = "MASTERCARD".
+	CardNetworkMASTERCARD CardNetwork = "MASTERCARD"
+
+	// CardNetworkAMEX = "AMEX".
+	CardNetworkAMEX CardNetwork = "AMEX"
+
+	// CardNetworkUNKNOWN = "UNKNOWN".
+	CardNetworkUNKNOWN CardNetwork = "UNKNOWN"
+)
+
+// CardFundingType contains the funding type value for the card.
+type CardFundingType string
+
+//credit, debit, prepaid, and unknown.
+const (
+	// CardFundingTypeCredit = "credit".
+	CardFundingTypeCredit CardFundingType = "credit"
+
+	// CardFundingTypeDebit = "debit".
+	CardFundingTypeDebit CardFundingType = "debit"
+
+	// CardFundingTypePrepaid = "prepaid".
+	CardFundingTypePrepaid CardFundingType = "prepaid"
+
+	// CardFundingTypeUnknown = "unknown".
+	CardFundingTypeUnknown CardFundingType = "unknown"
+)
+
+// CardErrorCode contains the error code value for the card.
+type CardErrorCode string
+
+const (
+	// CardErrorCodeVerificationFailed = "verification_failed".
+	CardErrorCodeVerificationFailed CardErrorCode = "verification_failed"
+
+	// CardErrorCodeVerificationFraudDetected = "verification_fraud_detected".
+	CardErrorCodeVerificationFraudDetected CardErrorCode = "verification_fraud_detected"
+
+	// CardErrorCodeVerificationDenied = "verification_denied".
+	CardErrorCodeVerificationDenied CardErrorCode = "verification_denied"
+
+	// CardErrorCodeVerificationNotSupportedByIssuer = "verification_not_supported_by_issuer".
+	CardErrorCodeVerificationNotSupportedByIssuer CardErrorCode = "verification_not_supported_by_issuer"
+
+	// CardErrorCodeVerificationStoppedByIssuer = "verification_stopped_by_issuer".
+	CardErrorCodeVerificationStoppedByIssuer CardErrorCode = "verification_stopped_by_issuer"
+
+	// CardErrorCodeCardFailed = "card_failed".
+	CardErrorCodeCardFailed CardErrorCode = "card_failed"
+
+	// CardErrorCodeCardInvalid = "card_invalid".
+	CardErrorCodeCardInvalid CardErrorCode = "card_invalid"
+
+	// CardErrorCodeCardAddressMismatch = "card_address_mismatch".
+	CardErrorCodeCardAddressMismatch CardErrorCode = "card_address_mismatch"
+
+	// CardErrorCodeCardZipMismatch = "card_zip_mismatch".
+	CardErrorCodeCardZipMismatch CardErrorCode = "card_zip_mismatch"
+
+	// CardErrorCodeCardCvvInvalid = "card_cvv_invalid".
+	CardErrorCodeCardCvvInvalid CardErrorCode = "card_cvv_invalid"
+
+	// CardErrorCodeCardExpired = "card_expired".
+	CardErrorCodeCardExpired CardErrorCode = "card_expired"
+
+	// CardErrorCodeCardLimitViolated = "card_limit_violated".
+	CardErrorCodeCardLimitViolated CardErrorCode = "card_limit_violated"
+
+	// CardErrorCodeCardNotHonored = "card_not_honored".
+	CardErrorCodeCardNotHonored CardErrorCode = "card_not_honored"
+
+	// CardErrorCodeCardCvvRequired = "card_cvv_required".
+	CardErrorCodeCardCvvRequired CardErrorCode = "card_cvv_required"
+
+	// CardErrorCodeCreditCardNotAllowed = "credit_card_not_allowed".
+	CardErrorCodeCreditCardNotAllowed CardErrorCode = "credit_card_not_allowed"
+
+	// CardErrorCodeCardAccountIneligible = "card_account_ineligible".
+	CardErrorCodeCardAccountIneligible CardErrorCode = "card_account_ineligible"
+
+	// CardErrorCodeCardNetworkUnsupported = "card_network_unsupported".
+	CardErrorCodeCardNetworkUnsupported CardErrorCode = "card_network_unsupported"
+)
 
 // Card is the object contain the card data returned from the API.
 type Card struct {
@@ -24,7 +160,7 @@ type Card struct {
 	// A pending status indicates that the linking is in-progress;
 	// complete indicates the account was linked successfully;
 	// failed indicates it failed.
-	Status string `json:"status,omitempty"`
+	Status CardStatus `json:"status,omitempty"`
 
 	// Object containing billing details for the card.
 	BillingDetails *BillingDetails `json:"billingDetails,omitempty"`
@@ -37,7 +173,7 @@ type Card struct {
 
 	// The network of the card.
 	// options: VISA, MASTERCARD, AMEX, UNKNOWN
-	Network string `json:"network,omitempty"`
+	Network CardNetwork `json:"network,omitempty"`
 
 	// The last 4 digits of the card.
 	Last4 string `json:"last4,omitempty"`
@@ -49,7 +185,7 @@ type Card struct {
 	IssuerCountry string `json:"issuerCountry,omitempty"`
 
 	// The funding type of the card. Possible values are credit, debit, prepaid, and unknown.
-	FundingType string `json:"fundingType,omitempty"`
+	FundingType CardFundingType `json:"fundingType,omitempty"`
 
 	// A UUID that uniquely identifies the account number.
 	// If the same account is used more than once, each card object will have a different id,
@@ -61,7 +197,7 @@ type Card struct {
 	// verification_not_supported_by_issuer, verification_stopped_by_issuer, card_failed, card_invalid,
 	// card_address_mismatch, card_zip_mismatch, card_cvv_invalid, card_expired, card_limit_violated,
 	// card_not_honored, card_cvv_required, credit_card_not_allowed, card_account_ineligible, card_network_unsupported]'
-	ErrorCode string `json:"errorCode,omitempty"`
+	ErrorCode CardErrorCode `json:"errorCode,omitempty"`
 
 	// Indicates the status of the card for verification purposes.
 	Verification *CardVerification `json:"verification,omitempty"`

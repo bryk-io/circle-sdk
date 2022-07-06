@@ -1,6 +1,6 @@
 package circlesdk
 
-// Amount provides information for a specific amount/currency pair
+// Amount provides information for a specific amount/currency pair.
 type Amount struct {
 	// Magnitude of the amount, in units of the currency.
 	Amount string `json:"amount,omitempty"`
@@ -46,16 +46,47 @@ type Metadata struct {
 	PhoneNumber string `json:"phoneNumber,omitempty"`
 }
 
+// RiskEvaluationDecision contains decision value for the RiskEvaluation.
+type RiskEvaluationDecision string
+
+const (
+	// RiskEvaluationDecisionApproved = "approved".
+	RiskEvaluationDecisionApproved RiskEvaluationDecision = "approved"
+
+	// RiskEvaluationDecisionDenied = "denied".
+	RiskEvaluationDecisionDenied RiskEvaluationDecision = "denied"
+
+	// RiskEvaluationDecisionReview = "review".
+	RiskEvaluationDecisionReview RiskEvaluationDecision = "review"
+)
+
 // RiskEvaluation contains the Result of risk evaluation.
 // Only present if the payment is denied by Circle's risk service.
 type RiskEvaluation struct {
 	// Enumerated decision of the account.
 	// Options: approved, denied, review
-	Decision string `json:"decision,omitempty"`
+	Decision RiskEvaluationDecision `json:"decision,omitempty"`
 
 	// Risk reason for the definitive decision outcome.
 	Reason string `json:"reason,omitempty"`
 }
+
+// SourceType contains the type value for the source.
+type SourceType string
+
+const (
+	// SourceTypeCard = "card".
+	SourceTypeCard SourceType = "card"
+
+	// SourceTypeAch = "ach".
+	SourceTypeAch SourceType = "ach"
+
+	// SourceTypeWire = "wire".
+	SourceTypeWire SourceType = "wire"
+
+	// SourceTypeSepa = "sepa".
+	SourceTypeSepa SourceType = "sepa"
+)
 
 // Source object used for the payment.
 type Source struct {
@@ -64,7 +95,7 @@ type Source struct {
 
 	// Type of the source.
 	// options: card, ach, wire, sepa
-	Type string `json:"type"`
+	Type SourceType `json:"type"`
 }
 
 // CreateMetadataRequest contains the data to create metadata for entities.
