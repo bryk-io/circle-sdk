@@ -232,7 +232,7 @@ func (mod *API) ListPayments(l circlesdk.ListPaymentsRequest, opts ...circlesdk.
 		req.AddQueryParam("settlementId", l.SettlementID)
 	}
 	if l.Status != "" {
-		req.AddQueryParam("status", l.Status)
+		req.AddQueryParam("status", string(l.Status))
 	}
 	for _, t := range l.Type {
 		req.AddQueryParam("type", t)

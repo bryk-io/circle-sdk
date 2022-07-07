@@ -171,7 +171,7 @@ func (cl *Client) Dispatch(r *RequestOptions) error {
 	}
 
 	// API level errors
-	if res.StatusCode == 400 {
+	if res.StatusCode > 299 {
 		e := new(Error)
 		if err := json.Unmarshal(body, e); err == nil {
 			return e

@@ -86,7 +86,7 @@ func (mod *API) ListPayouts(l circlesdk.ListPayoutsRequest, opts ...circlesdk.Ca
 		req.AddQueryParam("destination", l.Destination)
 	}
 	for _, s := range l.Status {
-		req.AddQueryParam("status", s)
+		req.AddQueryParam("status", string(s))
 	}
 	for _, t := range l.Type {
 		req.AddQueryParam("type", t)

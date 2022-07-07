@@ -200,3 +200,30 @@ func (mod *API) GetRecipientAddressList(opts ...circlesdk.CallOption) ([]*circle
 	}
 	return list, nil
 }
+
+// GetPublicKey Retrieves an RSA public key to be used in encrypting data sent to the API.
+// Your public keys change infrequently, so we encourage you to cache this response value locally
+// for a duration of 24 hours or more.
+// https://developers.circle.com/reference/getpublickey
+func (mod *API) GetPublicKey() (string, string, error) {
+	type publicKeyResponse struct {
+		KeyID     string `json:"keyId,omitempty"`
+		PublicKey string `json:"publicKey,omitempty"`
+	}
+
+	req := &circlesdk.RequestOptions{
+		Method:     http.MethodGet,
+		Endpoint:   "v1/encryption/public",
+		Input:      nil,
+		Output:     &publicKeyResponse{},
+		UnwrapData: true,
+	}
+	if err := mod.cl.Dispatch(req); err != nil {
+		return "", "", err
+	}
+	res, ok := req.Output.(*publicKeyResponse)
+	if !ok {
+		return "", "", errors.New("invalid response")
+	}
+	return res.KeyID, res.PublicKey, nil
+}
