@@ -9,6 +9,10 @@ type Settlement struct {
 	// Not included for standard merchant settlements.
 	MerchantWalletID string `json:"merchantWalletId,omitempty"`
 
+	// If this settlement was used for a marketplace payment, the wallet involved in the settlement.
+	// Not included for standard merchant settlements.
+	WalletID string `json:"walletId,omitempty"`
+
 	// Total debits for the settlement
 	TotalDebits *Amount `json:"totalDebits,omitempty"`
 

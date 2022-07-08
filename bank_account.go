@@ -76,6 +76,12 @@ type BankAccount struct {
 	// failed indicates it failed.
 	Status BankAccountStatus `json:"status,omitempty"`
 
+	// Bank name plus last four digits of the bank account number or IBAN.
+	Description string `json:"description,omitempty"`
+
+	// Wire tracking ref that needs to be set in the wire reference to beneficiary field.
+	TrackingRef string `json:"trackingRef,omitempty"`
+
 	// The redacted account number of the ACH account.
 	AccountNumber string `json:"accountNumber,omitempty"`
 

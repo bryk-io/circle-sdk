@@ -4,14 +4,14 @@ package circlesdk
 type ChargeBackHistoryType string
 
 const (
-	// ChargeBackHistoryType1stChargeBack = "1st ChargeBack".
-	ChargeBackHistoryType1stChargeBack ChargeBackHistoryType = "1st ChargeBack"
+	// ChargeBackHistoryType1stChargeBack = "1st Chargeback".
+	ChargeBackHistoryType1stChargeBack ChargeBackHistoryType = "1st Chargeback"
 
-	// ChargeBackHistoryType2ndChargeBack = "2nd ChargeBack".
-	ChargeBackHistoryType2ndChargeBack ChargeBackHistoryType = "2nd ChargeBack"
+	// ChargeBackHistoryType2ndChargeBack = "2nd Chargeback".
+	ChargeBackHistoryType2ndChargeBack ChargeBackHistoryType = "2nd Chargeback"
 
-	// ChargeBackHistoryTypeChargeBackReversal = ChargeBack Reversal".
-	ChargeBackHistoryTypeChargeBackReversal ChargeBackHistoryType = "ChargeBack Reversal"
+	// ChargeBackHistoryTypeChargeBackReversal = "Chargeback Reversal".
+	ChargeBackHistoryTypeChargeBackReversal ChargeBackHistoryType = "Chargeback Reversal"
 
 	// ChargeBackHistoryTypeRepresentment = "Representment".
 	ChargeBackHistoryTypeRepresentment ChargeBackHistoryType = "Representment"
