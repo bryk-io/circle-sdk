@@ -56,12 +56,12 @@ func TestAPI_CreatePayout(t *testing.T) {
 					StatusCode: http.StatusInternalServerError,
 					Body: io.NopCloser(strings.NewReader(`{
   "code": 500,
-  "message": "Internal error."
+  "message": "internal error"
 }`)),
 				},
 			},
 			expected:    nil,
-			expectedErr: errors.New("500: Internal error."),
+			expectedErr: errors.New("500: internal error"),
 		}, {
 			name: "api 401 error",
 			withOptions: func(options *circlesdk.RequestOptions) error {
@@ -73,12 +73,12 @@ func TestAPI_CreatePayout(t *testing.T) {
 					StatusCode: http.StatusUnauthorized,
 					Body: io.NopCloser(strings.NewReader(`{
   "code": 401,
-  "message": "Malformed authorization."
+  "message": "malformed authorization"
 }`)),
 				},
 			},
 			expected:    nil,
-			expectedErr: errors.New("401: Malformed authorization."),
+			expectedErr: errors.New("401: malformed authorization"),
 		}, {
 			name: "api 400 error",
 			withOptions: func(options *circlesdk.RequestOptions) error {
@@ -90,12 +90,12 @@ func TestAPI_CreatePayout(t *testing.T) {
 					StatusCode: http.StatusBadRequest,
 					Body: io.NopCloser(strings.NewReader(`{
   "code": 400,
-  "message": "Bad request."
+  "message": "bad request"
 }`)),
 				},
 			},
 			expected:    nil,
-			expectedErr: errors.New("400: Bad request."),
+			expectedErr: errors.New("400: bad request"),
 		}, {
 			name: "success",
 			withOptions: func(options *circlesdk.RequestOptions) error {
@@ -263,12 +263,12 @@ func TestAPI_GetPayout(t *testing.T) {
 					StatusCode: http.StatusInternalServerError,
 					Body: io.NopCloser(strings.NewReader(`{
  "code": 500,
- "message": "Internal error."
+ "message": "internal error"
 }`)),
 				},
 			},
 			expected:    nil,
-			expectedErr: errors.New("500: Internal error."),
+			expectedErr: errors.New("500: internal error"),
 		}, {
 			name: "api 401 error",
 			withOptions: func(options *circlesdk.RequestOptions) error {
@@ -280,12 +280,12 @@ func TestAPI_GetPayout(t *testing.T) {
 					StatusCode: http.StatusUnauthorized,
 					Body: io.NopCloser(strings.NewReader(`{
  "code": 401,
- "message": "Malformed authorization."
+ "message": "malformed authorization"
 }`)),
 				},
 			},
 			expected:    nil,
-			expectedErr: errors.New("401: Malformed authorization."),
+			expectedErr: errors.New("401: malformed authorization"),
 		}, {
 			name: "api 404 error",
 			withOptions: func(options *circlesdk.RequestOptions) error {
@@ -297,12 +297,12 @@ func TestAPI_GetPayout(t *testing.T) {
 					StatusCode: http.StatusNotFound,
 					Body: io.NopCloser(strings.NewReader(`{
  "code": 404,
- "message": "Not found."
+ "message": "not found"
 }`)),
 				},
 			},
 			expected:    nil,
-			expectedErr: errors.New("404: Not found."),
+			expectedErr: errors.New("404: not found"),
 		}, {
 			name: "success",
 			withOptions: func(options *circlesdk.RequestOptions) error {
@@ -470,12 +470,12 @@ func TestAPI_ListPayouts(t *testing.T) {
 					StatusCode: http.StatusInternalServerError,
 					Body: io.NopCloser(strings.NewReader(`{
  "code": 500,
- "message": "Internal error."
+ "message": "internal error"
 }`)),
 				},
 			},
 			expected:    nil,
-			expectedErr: errors.New("500: Internal error."),
+			expectedErr: errors.New("500: internal error"),
 		}, {
 			name: "api 401 error",
 			withOptions: func(options *circlesdk.RequestOptions) error {
@@ -487,12 +487,12 @@ func TestAPI_ListPayouts(t *testing.T) {
 					StatusCode: http.StatusUnauthorized,
 					Body: io.NopCloser(strings.NewReader(`{
  "code": 401,
- "message": "Malformed authorization."
+ "message": "malformed authorization"
 }`)),
 				},
 			},
 			expected:    nil,
-			expectedErr: errors.New("401: Malformed authorization."),
+			expectedErr: errors.New("401: malformed authorization"),
 		}, {
 			name: "success",
 			withOptions: func(options *circlesdk.RequestOptions) error {
@@ -662,12 +662,12 @@ func TestAPI_ListReturns(t *testing.T) {
 					StatusCode: http.StatusInternalServerError,
 					Body: io.NopCloser(strings.NewReader(`{
  "code": 500,
- "message": "Internal error."
+ "message": "internal error"
 }`)),
 				},
 			},
 			expected:    nil,
-			expectedErr: errors.New("500: Internal error."),
+			expectedErr: errors.New("500: internal error"),
 		}, {
 			name: "api 401 error",
 			withOptions: func(options *circlesdk.RequestOptions) error {
@@ -679,12 +679,12 @@ func TestAPI_ListReturns(t *testing.T) {
 					StatusCode: http.StatusUnauthorized,
 					Body: io.NopCloser(strings.NewReader(`{
  "code": 401,
- "message": "Malformed authorization."
+ "message": "malformed authorization"
 }`)),
 				},
 			},
 			expected:    nil,
-			expectedErr: errors.New("401: Malformed authorization."),
+			expectedErr: errors.New("401: malformed authorization"),
 		}, {
 			name: "success",
 			withOptions: func(options *circlesdk.RequestOptions) error {

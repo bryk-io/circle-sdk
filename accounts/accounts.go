@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bryk-io/circle-sdk"
+	circlesdk "github.com/bryk-io/circle-sdk"
 )
 
 // API the Circle Accounts API allows you to easily create and manage accounts and balances
