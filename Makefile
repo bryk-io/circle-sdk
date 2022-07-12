@@ -1,6 +1,10 @@
 .PHONY: *
 .DEFAULT_GOAL:=help
 
+# For commands that require a specific package path, default to all local
+# subdirectories if no value is provided.
+pkg?="..."
+
 help:
 	@echo "Commands available"
 	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' | sed -e 's/^/ /' | sort

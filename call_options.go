@@ -10,12 +10,12 @@ import (
 
 // CallOption settings allow you to adjust the behavior of specific
 // API calls.
-type CallOption func(*requestOptions) error
+type CallOption func(*RequestOptions) error
 
 // WithContext allows you to provide a custom context to the API call.
 func WithContext(ctx context.Context) CallOption {
-	return func(req *requestOptions) error {
-		req.ctx = ctx
+	return func(req *RequestOptions) error {
+		req.Ctx = ctx
 		return nil
 	}
 }
@@ -25,11 +25,11 @@ func WithContext(ctx context.Context) CallOption {
 // "ik" is empty a new valid idempotency key will be generated.
 // https://developers.circle.com/docs/a-note-on-idempotent-requests
 func WithIdempotencyKey(ik string) CallOption {
-	return func(req *requestOptions) error {
+	return func(req *RequestOptions) error {
 		if ik == "" {
 			ik = uuid.NewString()
 		}
-		req.idempotencyKey = ik
+		req.IdempotencyKey = ik
 		return nil
 	}
 }
@@ -40,8 +40,8 @@ func WithIdempotencyKey(ik string) CallOption {
 // the allowed limit, the collection limit will be used. If not provided,
 // the collection will determine the page size itself.
 func WithPageSize(size uint) CallOption {
-	return func(req *requestOptions) error {
-		req.addQueryParam("pageSize", fmt.Sprintf("%d", size))
+	return func(req *RequestOptions) error {
+		req.AddQueryParam("pageSize", fmt.Sprintf("%d", size))
 		return nil
 	}
 }
@@ -49,9 +49,29 @@ func WithPageSize(size uint) CallOption {
 // WithDateRange limits the collection items returned by API calls to the
 // specified date range (inclusive).
 func WithDateRange(from, to time.Time) CallOption {
-	return func(req *requestOptions) error {
-		req.addQueryParam("to", to.Format(time.RFC3339))
-		req.addQueryParam("from", from.Format(time.RFC3339))
+	return func(req *RequestOptions) error {
+		req.AddQueryParam("to", to.Format(time.RFC3339))
+		req.AddQueryParam("from", from.Format(time.RFC3339))
+		return nil
+	}
+}
+
+// WithPageBefore marks the exclusive end of a page.
+// When provided, the collection resource will return the next n items before
+// the id, with n being specified by pageSize.
+func WithPageBefore(id string) CallOption {
+	return func(req *RequestOptions) error {
+		req.AddQueryParam("pageBefore", id)
+		return nil
+	}
+}
+
+// WithPageAfter marks the exclusive begin of a page.
+// When provided, the collection resource will return the next n items after
+// the id, with n being specified by pageSize.
+func WithPageAfter(id string) CallOption {
+	return func(req *RequestOptions) error {
+		req.AddQueryParam("pageAfter", id)
 		return nil
 	}
 }

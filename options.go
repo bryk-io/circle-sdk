@@ -12,7 +12,7 @@ type Option func(*Client) error
 // WithUserAgent adjust the network agent value reported to the service.
 func WithUserAgent(agent string) Option {
 	return func(c *Client) error {
-		c.userAgent = agent
+		c.UserAgent = agent
 		return nil
 	}
 }
@@ -21,7 +21,7 @@ func WithUserAgent(agent string) Option {
 // service, in seconds.
 func WithKeepAlive(val uint) Option {
 	return func(c *Client) error {
-		c.keepAlive = val
+		c.KeepAlive = val
 		return nil
 	}
 }
@@ -30,7 +30,7 @@ func WithKeepAlive(val uint) Option {
 // keep open with the service.
 func WithMaxConnections(val uint) Option {
 	return func(c *Client) error {
-		c.maxConnections = val
+		c.MaxConnections = val
 		return nil
 	}
 }
@@ -40,7 +40,7 @@ func WithMaxConnections(val uint) Option {
 // body. A timeout of zero means no timeout.
 func WithTimeout(val uint) Option {
 	return func(c *Client) error {
-		c.timeout = val
+		c.Timeout = val
 		return nil
 	}
 }
@@ -48,7 +48,7 @@ func WithTimeout(val uint) Option {
 // WithAPIKey specifies the Circle API key used to access the service.
 func WithAPIKey(key string) Option {
 	return func(c *Client) error {
-		c.key = key
+		c.Key = key
 		return nil
 	}
 }
@@ -57,8 +57,8 @@ func WithAPIKey(key string) Option {
 // in 'name'.
 func WithAPIKeyFromEnv(name string) Option {
 	return func(c *Client) error {
-		c.key = os.Getenv(name)
-		if c.key == "" {
+		c.Key = os.Getenv(name)
+		if c.Key == "" {
 			return errors.New("env variable not available")
 		}
 		return nil
@@ -69,7 +69,7 @@ func WithAPIKeyFromEnv(name string) Option {
 // Recommended only for testing and development.
 func WithDebug() Option {
 	return func(c *Client) error {
-		c.debug = true
+		c.Debug = true
 		return nil
 	}
 }
@@ -79,7 +79,7 @@ func WithDebug() Option {
 // by default.
 func WithProductionBackend() Option {
 	return func(c *Client) error {
-		c.backend = endpointProduction
+		c.Backend = endpointProduction
 		return nil
 	}
 }
