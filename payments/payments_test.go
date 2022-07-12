@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 
@@ -196,6 +197,10 @@ func TestAPI_CreateCard(t *testing.T) {
 }
 
 func TestAPI_GetCard(t *testing.T) {
+	if os.Getenv("CIRCLE_API_KEY") == "" {
+		t.Skip("no API key available")
+	}
+
 	assert := ac.New(t)
 	tests := []struct {
 		name         string

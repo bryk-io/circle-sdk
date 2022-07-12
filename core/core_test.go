@@ -2,14 +2,18 @@ package core
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
-	"github.com/bryk-io/circle-sdk"
+	circlesdk "github.com/bryk-io/circle-sdk"
 	ac "github.com/stretchr/testify/assert"
 )
 
 func TestCore(t *testing.T) {
+	if os.Getenv("CIRCLE_API_KEY") == "" {
+		t.Skip("no API key available")
+	}
 	assert := ac.New(t)
 	opts := []circlesdk.Option{
 		// WithDebug(),
