@@ -236,7 +236,7 @@ func TestAPI_GetCard(t *testing.T) {
 					StatusCode: http.StatusInternalServerError,
 					Body: io.NopCloser(strings.NewReader(`{
   "code": 500,
-  "message": internal error"
+  "message": "internal error"
 }`)),
 				},
 			},
@@ -369,7 +369,7 @@ func TestAPI_GetCard(t *testing.T) {
 		api := API{cl: &circlesdk.Client{Conn: &http.Client{Transport: &tt.roundTripper}}}
 		data, err := api.GetCard("", tt.withOptions)
 		if tt.expectedErr != nil {
-			assert.Equal(tt.expectedErr.Error(), err.Error())
+			assert.Equal(tt.expectedErr.Error(), err.Error(), tt.name)
 		}
 		assert.Equal(tt.expected, data)
 	}
