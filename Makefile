@@ -11,20 +11,17 @@ help:
 
 ## deps: Verify dependencies and remove intermediary products
 deps:
-	@-rm -rf vendor
 	go mod tidy
-	go mod verify
-	go mod download
-	go mod vendor
+	go clean
 
 ## lint: Static analysis
 lint:
 	# Go code
 	golangci-lint run -v ./$(pkg)
 
-## scan: Look for known vulnerabilities in the project dependencies
+## scan-deps: Look for known vulnerabilities in the project dependencies
 # https://github.com/sonatype-nexus-community/nancy
-scan:
+scan-deps:
 	@go list -mod=readonly -f '{{if not .Indirect}}{{.}}{{end}}' -m all | nancy sleuth --skip-update-check
 
 ## test: Run all unitary tests
@@ -37,5 +34,4 @@ test:
 ## updates: List available updates for direct dependencies
 # https://github.com/golang/go/wiki/Modules#how-to-upgrade-and-downgrade-dependencies
 updates:
-	@go list -u -f '{{if (and (not (or .Main .Indirect)) .Update)}}{{.Path}}: {{.Version}} -> {{.Update.Version}}{{end}}' -mod=mod -m all 2> /dev/null
-
+	@GOWORK=off go list -u -f '{{if (and (not (or .Main .Indirect)) .Update)}}{{.Path}} [{{.Version}} -> {{.Update.Version}}]{{end}}' -m all 2> /dev/null

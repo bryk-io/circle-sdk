@@ -11,6 +11,7 @@ import (
 //   - Bank wires
 //   - On-chain USDC transfers
 //   - ACH (coming soon)
+//
 // Payouts are funded with your USDC denominated Circle Account, which can receive deposits
 // from both traditional and blockchain payment rails.
 type API struct {

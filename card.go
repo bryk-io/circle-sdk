@@ -80,7 +80,7 @@ const (
 // CardFundingType contains the funding type value for the card.
 type CardFundingType string
 
-//credit, debit, prepaid, and unknown.
+// credit, debit, prepaid, and unknown.
 const (
 	// CardFundingTypeCredit = "credit".
 	CardFundingTypeCredit CardFundingType = "credit"

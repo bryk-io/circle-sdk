@@ -12,6 +12,7 @@ import (
 //   - Register your own business bank accounts - if you have them.
 //   - Make transfers from / to your business bank account while seamlessly converting
 //     those funds across digital currency and traditional FIAT.
+//
 // https://developers.circle.com/docs
 type API struct {
 	cl *circlesdk.Client

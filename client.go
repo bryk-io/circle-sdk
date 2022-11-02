@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -145,7 +144,7 @@ func (cl *Client) Dispatch(r *RequestOptions) error {
 	if res != nil {
 		// Properly discard request content to be able to reuse the connection.
 		defer func() {
-			_, _ = io.Copy(ioutil.Discard, res.Body)
+			_, _ = io.Copy(io.Discard, res.Body)
 			_ = res.Body.Close()
 		}()
 	}
@@ -165,7 +164,7 @@ func (cl *Client) Dispatch(r *RequestOptions) error {
 	}
 
 	// Get response contents
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
