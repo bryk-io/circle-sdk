@@ -179,25 +179,23 @@ func (cl *Client) Dispatch(r *RequestOptions) error {
 	}
 
 	// Decode response
-	if r.Output != nil {
+	if r.Output != nil && r.UnwrapData {
 		// Unwrap "data" key in the response
-		if r.UnwrapData {
-			temp := map[string]interface{}{}
-			if err := json.Unmarshal(body, &temp); err != nil {
-				return fmt.Errorf("non JSON content returned: %s", body)
-			}
-			if data, ok := temp["data"]; ok {
-				body, err = json.Marshal(data)
-				if err != nil {
-					return fmt.Errorf("non JSON content returned: %s", data)
-				}
-			}
-		}
-
-		// Load response data in the provided output interface
-		if err = json.Unmarshal(body, r.Output); err != nil {
+		temp := map[string]interface{}{}
+		if err := json.Unmarshal(body, &temp); err != nil {
 			return fmt.Errorf("non JSON content returned: %s", body)
 		}
+		if data, ok := temp["data"]; ok {
+			body, err = json.Marshal(data)
+			if err != nil {
+				return fmt.Errorf("non JSON content returned: %s", data)
+			}
+		}
+	}
+
+	// Load response data in the provided output interface
+	if err = json.Unmarshal(body, r.Output); err != nil {
+		return fmt.Errorf("non JSON content returned: %s", body)
 	}
 
 	// All good!
