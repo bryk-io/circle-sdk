@@ -145,6 +145,7 @@ const (
 // PaymentErrorCode contains the error code value for the payment.
 type PaymentErrorCode string
 
+// nolint: gosec
 const (
 	// PaymentErrorCodePaymentFailed = "payment_failed".
 	PaymentErrorCodePaymentFailed PaymentErrorCode = "payment_failed"

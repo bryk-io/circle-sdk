@@ -98,6 +98,7 @@ const (
 // CardErrorCode contains the error code value for the card.
 type CardErrorCode string
 
+// nolint: gosec
 const (
 	// CardErrorCodeVerificationFailed = "verification_failed".
 	CardErrorCodeVerificationFailed CardErrorCode = "verification_failed"

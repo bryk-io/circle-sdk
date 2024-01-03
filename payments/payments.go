@@ -276,10 +276,7 @@ func (mod *API) CapturePayment(
 		c.IdempotencyKey = req.IdempotencyKey
 	}
 	req.Input = &c
-	if err := mod.cl.Dispatch(req); err != nil {
-		return err
-	}
-	return nil
+	return mod.cl.Dispatch(req)
 }
 
 // CancelPayment the payment will be voided if possible meaning the payment source
